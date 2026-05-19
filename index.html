@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GroomAI</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GroomAI">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#1C1C1C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Your personal AI stylist. Colour matching, grooming, skincare and outfit advice tailored to you.">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Core */
+  --bg:#F9F9F9;--surface:#FFFFFF;--surface2:#F4F4F5;
+  --char:#111111;--muted:#71717A;--border:#E4E4E7;
+  /* Accent */
+  --gold:#C9A96E;--gold-l:#FBF5EA;
+  /* Status */
+  --green:#16A34A;--green-l:#DCFCE7;--red:#DC2626;--red-l:#FEE2E2;
+  /* Legacy compat */
+  --cream:#F9F9F9;--warm:#FFFFFF;--blush:#F4F4F5;--deep:#111111;
+  --r:14px;--rs:10px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--char);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* WELCOME */
+#sw{background:var(--char);color:var(--cream);align-items:center;justify-content:center;text-align:center;padding:2.5rem 1.75rem;position:relative;overflow:hidden}
+#sw::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(184,150,90,.18),transparent 65%);pointer-events:none}
+.w-orn{font-family:'Cormorant Garamond',serif;font-size:4.5rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:1.25rem}
+.w-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;line-height:1.2;margin-bottom:.6rem}
+.w-title em{color:var(--gold);font-style:italic}
+.w-tag{font-size:13px;color:rgba(253,251,248,.5);margin-bottom:2rem;line-height:1.6;max-width:280px}
+.w-feats{display:flex;flex-direction:column;gap:.5rem;margin-bottom:2rem;width:100%;max-width:320px}
+.wf{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.1);border-radius:8px;padding:.65rem .9rem;text-align:left}
+.wf-icon{font-size:17px;flex-shrink:0}
+.wf-txt{font-size:12.5px;color:rgba(253,251,248,.75);line-height:1.4}
+.btn-gold{width:100%;max-width:320px;padding:.95rem;background:var(--gold);color:var(--char);border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-gold:hover{background:#C9A868;transform:translateY(-1px)}
+.w-note{font-size:11px;color:rgba(253,251,248,.3);margin-top:.85rem}
+
+/* ONBOARDING */
+#so{background:var(--cream)}
+.ob-hd{background:var(--warm);padding:1.1rem 1.25rem;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.ob-logo{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300}
+.ob-logo span{color:var(--gold);font-style:italic}
+.ob-prog-w{flex:1;margin:0 1rem}
+.ob-prog-t{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.ob-prog-f{height:100%;background:var(--gold);border-radius:2px;transition:width .4s ease}
+.ob-lbl{font-size:10px;color:var(--muted);text-align:right;margin-top:2px}
+.ob-body{flex:1;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;max-width:520px;margin:0 auto;width:100%}
+.ob-q{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:400;line-height:1.3;color:var(--char)}
+.ob-sub{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.5rem}
+.ob-step{display:none;flex-direction:column;gap:.9rem}
+.ob-step.active{display:flex}
+.tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tile{border:.5px solid var(--border);border-radius:var(--r);padding:.9rem;cursor:pointer;transition:all .2s;background:var(--warm);text-align:center}
+.tile:hover{border-color:var(--gold)}
+.tile.active{background:var(--char);border-color:var(--char);color:var(--cream)}
+.tile-icon{font-size:1.8rem;margin-bottom:.35rem;display:block}
+.tile-lbl{font-size:13px;font-weight:500}
+.tile-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35}
+.tile.active .tile-desc{color:rgba(253,251,248,.55)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:7px 14px;border:.5px solid var(--border);border-radius:100px;font-size:13px;cursor:pointer;transition:all .15s;background:var(--warm);color:var(--char);user-select:none}
+.chip.active{background:var(--char);color:var(--cream);border-color:var(--char)}
+.csearch{width:100%;padding:.7rem .9rem;border:.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:16px;background:var(--warm);color:var(--char);outline:none;transition:border-color .2s}
+.csearch:focus{border-color:var(--gold)}
+.clist{max-height:190px;overflow-y:auto;border:.5px solid var(--border);border-radius:var(--rs);background:var(--warm);display:none}
+.clist.show{display:block}
+.citem{padding:.6rem .9rem;font-size:13px;cursor:pointer;border-bottom:.5px solid var(--border);transition:background .15s}
+.citem:last-child{border-bottom:none}
+.citem:hover{background:var(--cream)}
+.csel{padding:.6rem .9rem;font-size:13px;background:var(--green-l);border:.5px solid #A5D6B8;border-radius:var(--rs);color:var(--green);display:none;font-weight:500}
+.age-num{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:var(--gold);text-align:center;margin:.35rem 0}
+.age-sl{width:100%;accent-color:var(--gold);height:6px;cursor:pointer}
+.age-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px}
+.finput{width:100%;padding:.7rem .9rem;border:.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:16px;background:var(--warm);color:var(--char);outline:none;resize:vertical;min-height:80px}
+.finput:focus{border-color:var(--gold)}
+.ob-nav{display:flex;gap:9px;padding:1.1rem 1.25rem;background:var(--warm);border-top:.5px solid var(--border);position:sticky;bottom:0}
+.btn-back{padding:.8rem 1.25rem;border:.5px solid var(--border);background:transparent;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--muted);transition:all .2s}
+.btn-next{flex:1;padding:.8rem;background:var(--char);color:var(--cream);border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-next:disabled{opacity:.38;cursor:not-allowed}
+
+/* MAIN APP */
+#sa{background:var(--cream)}
+.app-hd{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.app-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;letter-spacing:-.01em;color:var(--char)}
+.app-logo span{color:var(--gold);font-style:italic}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.key-btn{padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--muted);background:var(--surface);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.key-btn:hover{border-color:var(--char);color:var(--char)}
+.lang-btn{padding:5px 10px;border:1px solid var(--gold);border-radius:8px;font-size:11px;color:var(--gold);background:var(--surface);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .2s}
+.lang-btn:hover{background:var(--gold);color:#fff}
+.prof-btn{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.prof-btn:hover{background:var(--border)}
+.app-nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0}
+.app-nav::-webkit-scrollbar{display:none}
+.ntab{padding:.7rem 1.1rem;font-size:12.5px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted);transition:all .2s;white-space:nowrap;user-select:none;flex-shrink:0;font-weight:400;letter-spacing:-.01em}
+.ntab.active{color:var(--char);border-bottom-color:var(--gold);font-weight:600}
+.page{display:none;min-height:calc(100vh - 100px)}
+.page.active{display:block}
+.two-col{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 100px)}
+.lp{background:var(--surface);border-right:1px solid var(--border);padding:1.25rem;display:flex;flex-direction:column;gap:.85rem;overflow-y:auto;max-height:calc(100vh - 100px)}
+.rp{padding:1.6rem 1.8rem;overflow-y:auto;max-height:calc(100vh - 100px)}
+.pt{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400}
+.ps{font-size:11px;color:var(--muted);line-height:1.5;margin-top:2px}
+.fl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500;display:block;margin-bottom:4px}
+select,.si{width:100%;padding:.65rem .85rem;border:1px solid var(--border);border-radius:10px;background:var(--surface);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--char);appearance:none;outline:none;transition:border-color .2s}
+select:focus,.si:focus{border-color:var(--gold)}
+.sc{display:flex;flex-wrap:wrap;gap:6px}
+.sch{padding:5px 10px;border:.5px solid var(--border);border-radius:100px;font-size:12px;cursor:pointer;transition:all .15s;background:var(--cream);color:var(--char);user-select:none}
+.sch.active{background:var(--char);color:var(--cream);border-color:var(--char)}
+.ub{border:1px dashed var(--border);border-radius:var(--r);padding:1.15rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--cream);position:relative;overflow:hidden}
+.ub:hover{border-color:var(--gold);background:#faf5ed}
+.ub input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.ub img{width:100%;height:150px;object-fit:cover;border-radius:8px;display:none}
+.uph{pointer-events:none}
+.ui{width:38px;height:38px;margin:0 auto .45rem;border-radius:50%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:15px}
+.wg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.wt{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:.5px solid var(--border)}
+.wt img{width:100%;height:100%;object-fit:cover}
+.wt .del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:17px;height:17px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ac{aspect-ratio:1;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:19px;color:var(--muted);cursor:pointer;position:relative;overflow:hidden;background:var(--cream)}
+.ac input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.btn-p{width:100%;padding:.9rem;background:var(--char);color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.12);letter-spacing:-.01em}
+.btn-p:hover:not(:disabled){background:var(--deep);transform:translateY(-1px)}
+.btn-p:disabled{opacity:.38;cursor:not-allowed}
+.results{display:flex;flex-direction:column;gap:1rem}
+.rc{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.04);animation:fu .3s ease both}
+@keyframes fu{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.ch{padding:.8rem 1rem;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:8px}
+.ci{width:27px;height:27px;border-radius:6px;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ct{font-family:'Cormorant Garamond',serif;font-size:.92rem;font-weight:500}
+.cb{padding:1rem;font-size:13px;line-height:1.7}
+.palette{display:flex;flex-wrap:wrap;gap:9px;margin-top:.55rem}
+.sw-w{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.sw{width:46px;height:46px;border-radius:50%;border:.5px solid rgba(0,0,0,.08);transition:transform .15s;position:relative}
+.sw:hover{transform:scale(1.1)}
+.swb{position:absolute;top:-2px;right:-2px;width:13px;height:13px;border-radius:50%;font-size:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.swb.yes{background:var(--green)}.swb.no{background:var(--red)}
+.sw-n{font-size:10px;color:var(--muted);text-align:center;max-width:50px;line-height:1.3}
+.cbar{display:flex;height:42px;border-radius:8px;overflow:hidden;margin-top:.55rem;border:.5px solid var(--border)}
+.cbs{flex:1}
+.pill{display:inline-block;padding:3px 9px;background:var(--cream);border:.5px solid var(--border);border-radius:100px;font-size:11px;margin:2px}
+.plinks{display:flex;flex-direction:column;gap:6px;margin-top:.55rem}
+.pl{display:flex;align-items:center;gap:9px;padding:.7rem .9rem;background:var(--cream);border:.5px solid var(--border);border-radius:var(--rs);text-decoration:none;color:var(--char);transition:border-color .2s;font-size:12.5px}
+.pl:hover{border-color:var(--gold)}
+.pl-ic{font-size:16px;flex-shrink:0}
+.pl-inf{flex:1}
+.pl-nm{font-weight:500;font-size:12.5px}
+.pl-sr{font-size:11px;color:var(--muted)}
+.pl-ar{color:var(--muted)}
+.cr-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:7px;margin-top:.5rem}
+.cc{border:.5px solid var(--border);border-radius:var(--rs);overflow:hidden;background:var(--warm);position:relative}
+.cc img{width:100%;aspect-ratio:1;object-fit:cover}
+.cc-rk{position:absolute;top:4px;left:4px;background:var(--char);color:var(--cream);font-size:10px;padding:2px 7px;border-radius:100px}
+.cc-sc{padding:5px 7px;font-size:11px;font-weight:500}
+.cc-br{height:3px;background:var(--border);margin:0 7px 6px}
+.cc-fl{height:100%;border-radius:2px}
+.chat-layout{display:flex;flex-direction:column;height:calc(100vh - 100px)}
+.chat-bar{padding:.65rem 1.15rem;background:var(--warm);border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:9px}
+.chat-av{width:32px;height:32px;border-radius:50%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.chat-nm{font-weight:500;font-size:13px}
+.chat-st{font-size:11px;color:var(--green)}
+.chat-msgs{flex:1;overflow-y:auto;padding:1.1rem;display:flex;flex-direction:column;gap:.75rem}
+.msg{display:flex;gap:7px;max-width:78%;animation:fu .25s ease}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.mb{padding:.65rem .88rem;border-radius:12px;font-size:13.5px;line-height:1.65}
+.msg.ai .mb{background:var(--warm);border:.5px solid var(--border);border-radius:12px 12px 12px 2px}
+.msg.user .mb{background:var(--char);color:var(--cream);border-radius:12px 12px 2px 12px}
+.mav{width:27px;height:27px;border-radius:50%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;align-self:flex-end}
+.qchips{display:flex;flex-wrap:wrap;gap:5px;padding:.65rem 1.15rem;background:var(--warm);border-top:.5px solid var(--border)}
+.qch{padding:5px 11px;border:.5px solid var(--border);border-radius:100px;font-size:11.5px;cursor:pointer;color:var(--char);background:var(--cream);transition:all .15s}
+.qch:hover{border-color:var(--gold);color:var(--gold)}
+.chat-ia{padding:.8rem 1.15rem;padding-bottom:calc(.8rem + env(safe-area-inset-bottom));background:var(--warm);border-top:.5px solid var(--border);display:flex;gap:7px;align-items:flex-end}
+.chat-in{flex:1;padding:.62rem .85rem;border:.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;resize:none;min-height:40px;max-height:105px;outline:none;background:var(--cream);color:var(--char);line-height:1.5}
+.chat-in:focus{border-color:var(--gold)}
+.chat-sd{width:36px;height:36px;background:var(--char);border:none;border-radius:8px;color:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.chat-sd:disabled{opacity:.38;cursor:not-allowed}
+.td{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;margin:0 1px}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.cs{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.85rem;color:var(--muted);padding:2.25rem;text-align:center}
+.cs-ic{font-size:3.2rem;line-height:1;color:var(--border)}
+.cs h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.45rem;color:var(--char)}
+.cs p{font-size:12.5px;line-height:1.7;max-width:260px}
+.spin{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ll{font-family:'Cormorant Garamond',serif;font-size:.95rem;font-style:italic;color:var(--muted)}
+.dots::after{content:'';animation:da 1.5s steps(4) infinite}
+@keyframes da{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}100%{content:''}}
+.err-box{background:#FEF2F2;border:.5px solid #FECACA;border-radius:var(--rs);padding:.85rem .95rem;color:#991B1B;font-size:13px;line-height:1.5}
+.overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(26,26,26,.88);align-items:center;justify-content:center;padding:1.4rem}
+.ov-box{background:var(--warm);border-radius:16px;padding:1.6rem;width:100%;max-width:390px;border:.5px solid var(--border)}
+.ov-logo{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:300;text-align:center;margin-bottom:1.1rem}
+.ov-logo span{color:var(--gold);font-style:italic}
+.api-info{background:var(--green-l);border-radius:9px;padding:.85rem .95rem;margin-bottom:.9rem;border:.5px solid #A5D6B8}
+.api-ti{font-size:13px;font-weight:600;color:var(--green);margin-bottom:4px}
+.api-bd{font-size:12px;color:var(--green);line-height:1.75}
+.api-in{width:100%;padding:.7rem .85rem;border:.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:16px;color:var(--char);outline:none;background:var(--cream);margin-bottom:.7rem}
+.api-in:focus{border-color:var(--gold)}
+.api-nt{font-size:11px;color:var(--muted);margin-bottom:.9rem;line-height:1.6}
+.api-er{font-size:11px;color:var(--red);margin-bottom:.45rem;display:none}
+#ib{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--char);color:var(--cream);padding:11px 15px;align-items:center;justify-content:space-between;gap:9px;z-index:9999;box-shadow:0 -2px 20px rgba(0,0,0,.3)}
+.ib-b{padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.prof-bar{background:#F0FDF4;border:1px solid #86EFAC;border-radius:12px;padding:.65rem .85rem;font-size:12px;color:#15803D;line-height:1.5}
+.prof-bar strong{color:var(--green);display:block;margin-bottom:2px;font-size:12.5px}
+.wd-box{background:var(--warm);border:.5px solid var(--border);border-radius:var(--rs);padding:.7rem .85rem;font-size:12px}
+@media(max-width:640px){
+  .two-col{grid-template-columns:1fr}
+  .lp{max-height:none;border-right:none;border-bottom:.5px solid var(--border)}
+  .rp{max-height:none;padding:1.15rem}
+  .w-title{font-size:1.9rem}
+  .w-orn{font-size:3.5rem}
+  .wg{grid-template-columns:repeat(2,1fr)}
+  .chat-layout{height:calc(100dvh - 100px)}
+}
+*{-webkit-tap-highlight-color:transparent}
+button,.chip,.ntab,.qch,.tile,.sch{user-select:none}
+body{padding-bottom:env(safe-area-inset-bottom)}
+input,select,textarea{font-size:16px!important}
+</style>
+</head>
+<body>
+
+<!-- API OVERLAY -->
+<div class="overlay" id="api-ov" style="display:flex">
+  <div class="ov-box">
+    <div class="ov-logo">Groom<span>AI</span></div>
+    <div class="api-info">
+      <div class="api-ti">100% Free — Google Gemini API</div>
+      <div class="api-bd">1. Go to <strong>aistudio.google.com/app/apikey</strong><br>2. Sign in with Google account<br>3. Tap <strong>Create API Key</strong><br>4. Copy and paste below</div>
+    </div>
+    <label class="fl">Your Free Gemini API Key</label>
+    <input type="text" class="api-in" id="ak-in" placeholder="AIzaSy..." oninput="vk(this.value)" onpaste="setTimeout(()=>vk(this.value),100)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div class="api-er" id="ak-er">Key too short — paste the full key</div>
+    <div class="api-nt">Saved only on this device. Never shared except to Google Gemini API.</div>
+    <button class="btn-p" id="ak-btn" onclick="saveKey()">Save and Start GroomAI</button>
+    <div style="text-align:center;margin-top:.75rem"><a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:12px;color:var(--gold);text-decoration:none">Open aistudio.google.com</a></div>
+  </div>
+</div>
+
+<!-- WELCOME -->
+<div class="screen" id="sw">
+  <div class="w-orn">✦</div>
+  <h1 class="w-title">Your personal<br><em>style advisor</em></h1>
+  <p class="w-tag">The stylist only celebrities had — now powered by AI, free for everyone.</p>
+  <div class="w-feats">
+    <div class="wf"><span class="wf-icon">🎨</span><span class="wf-txt">Colour palette matched to your skin tone and culture</span></div>
+    <div class="wf"><span class="wf-icon">💈</span><span class="wf-txt">Hair and beard advice based on your natural features</span></div>
+    <div class="wf"><span class="wf-icon">👗</span><span class="wf-txt">Match your existing wardrobe to your look</span></div>
+    <div class="wf"><span class="wf-icon">🧴</span><span class="wf-txt">Skincare routine and product checker</span></div>
+    <div class="wf"><span class="wf-icon">🌤</span><span class="wf-txt">Daily outfit based on mood and weather</span></div>
+    <div class="wf"><span class="wf-icon">🌸</span><span class="wf-txt">Perfume matched to your skin and style</span></div>
+  </div>
+  <button class="btn-gold" onclick="goStart()">Get Started — Free</button>
+  <div class="w-note">Takes about 2 minutes to set up</div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="screen" id="so">
+  <div class="ob-hd">
+    <div class="ob-logo">Groom<span>AI</span> <span style="font-size:10px;color:var(--muted);font-family:DM Sans,sans-serif;font-weight:400;vertical-align:middle">v11</span></div>
+    <div class="ob-prog-w">
+      <div class="ob-prog-t"><div class="ob-prog-f" id="ob-pf" style="width:14%"></div></div>
+      <div class="ob-lbl" id="ob-lbl">Step 1 of 7</div>
+    </div>
+  </div>
+  <div class="ob-body">
+
+    <!-- Step 1: Photo -->
+    <div class="ob-step active" id="ob-1">
+      <div class="ob-q">Let's start with your photo</div>
+      <div class="ob-sub">A clear front-facing photo gives the best results for skin tone and face shape detection.</div>
+      <!-- Two photo options -->
+      <div id="ob-ph-opts" style="display:flex;gap:.75rem;margin:.25rem 0">
+        <label style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.5rem;background:var(--warm);border:1.5px solid var(--gold);border-radius:var(--r);padding:1.25rem .75rem;cursor:pointer;transition:all .2s">
+          <input type="file" accept="image/*" capture="user" onchange="obPhoto(event)" style="display:none">
+          <div style="font-size:2rem">📷</div>
+          <div style="font-size:13px;font-weight:600;color:var(--char)">Take Photo</div>
+          <div style="font-size:11px;color:var(--muted);text-align:center">Open camera now</div>
+        </label>
+        <label style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.5rem;background:var(--warm);border:1.5px solid var(--border);border-radius:var(--r);padding:1.25rem .75rem;cursor:pointer;transition:all .2s">
+          <input type="file" accept="image/*" onchange="obPhoto(event)" style="display:none">
+          <div style="font-size:2rem">🖼️</div>
+          <div style="font-size:13px;font-weight:600;color:var(--char)">Gallery</div>
+          <div style="font-size:11px;color:var(--muted);text-align:center">Choose existing photo</div>
+        </label>
+      </div>
+      <!-- Preview after selection -->
+      <div id="ob-prev-wrap" style="display:none;position:relative;border-radius:var(--r);overflow:hidden;border:.5px solid var(--border)">
+        <img id="ob-prev" alt="" style="width:100%;max-height:260px;object-fit:cover;display:block">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.5));padding:.5rem .75rem;display:flex;justify-content:space-between;align-items:center">
+          <span style="color:#fff;font-size:12px">✓ Photo selected</span>
+          <span style="color:var(--gold);font-size:12px;cursor:pointer" onclick="document.getElementById('ob-prev-wrap').style.display='none';document.getElementById('ob-ph-opts').style.display='flex';P.photo=null;updOb()">Change</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center">Your photo stays on your device only</div>
+    </div>
+
+    <!-- Step 2: Country -->
+    <div class="ob-step" id="ob-2">
+      <div class="ob-q">Where are you from?</div>
+      <div class="ob-sub">Your country helps match style to your culture and climate.</div>
+      <input type="text" class="csearch" id="c-inp" placeholder="Search your country..." oninput="cFilter(this.value)" onfocus="cFilter(this.value)">
+      <div class="clist" id="c-list"></div>
+      <div class="csel" id="c-sel"></div>
+    </div>
+
+    <!-- Step 3: Age -->
+    <div class="ob-step" id="ob-3">
+      <div class="ob-q">How old are you?</div>
+      <div class="ob-sub">Age is context — you decide your style, not your age.</div>
+      <div class="age-num" id="age-n">25</div>
+      <input type="range" class="age-sl" id="age-sl" min="13" max="80" value="25" oninput="ageUpd(this.value)">
+      <div class="age-lbl"><span>13</span><span>80+</span></div>
+    </div>
+
+    <!-- Step 4: Style identity -->
+    <div class="ob-step" id="ob-4">
+      <div class="ob-q">How do you express your style?</div>
+      <div class="ob-sub">No judgement — all styles are welcome. This guides your recommendations.</div>
+      <div class="tile-grid">
+        <div class="tile" data-v="masculine" onclick="selId(this)"><span class="tile-icon">👔</span><div class="tile-lbl">Masculine</div><div class="tile-desc">Classic men's style — shirts, suits, sharp grooming</div></div>
+        <div class="tile" data-v="feminine" onclick="selId(this)"><span class="tile-icon">👗</span><div class="tile-lbl">Feminine</div><div class="tile-desc">Women's style — dresses, soft palettes, accessories</div></div>
+        <div class="tile" data-v="androgynous" onclick="selId(this)"><span class="tile-icon">✨</span><div class="tile-lbl">Androgynous</div><div class="tile-desc">Fluid, boundary-free, a blend of both</div></div>
+        <div class="tile" data-v="any" onclick="selId(this)"><span class="tile-icon">🎨</span><div class="tile-lbl">Let AI decide</div><div class="tile-desc">Based on your photo and natural features</div></div>
+      </div>
+    </div>
+
+    <!-- Step 5: Style moods -->
+    <div class="ob-step" id="ob-5">
+      <div class="ob-q">Your style personality?</div>
+      <div class="ob-sub">Pick all that feel like you.</div>
+      <div class="chips" id="mood-c">
+        <div class="chip" data-v="classic" onclick="togM(this)">Classic</div>
+        <div class="chip" data-v="streetwear" onclick="togM(this)">Streetwear</div>
+        <div class="chip" data-v="smart casual" onclick="togM(this)">Smart casual</div>
+        <div class="chip" data-v="minimalist" onclick="togM(this)">Minimalist</div>
+        <div class="chip" data-v="bold" onclick="togM(this)">Bold</div>
+        <div class="chip" data-v="elegant" onclick="togM(this)">Elegant</div>
+        <div class="chip" data-v="sporty" onclick="togM(this)">Sporty</div>
+        <div class="chip" data-v="trendy" onclick="togM(this)">Trendy</div>
+      </div>
+    </div>
+
+    <!-- Step 6: Skin + existing products -->
+    <div class="ob-step" id="ob-6">
+      <div class="ob-q">Your skin type?</div>
+      <div class="ob-sub">Helps with skincare and product recommendations.</div>
+      <div class="chips" id="skin-c">
+        <div class="chip" data-v="normal" onclick="selSk(this)">Normal</div>
+        <div class="chip" data-v="dry" onclick="selSk(this)">Dry</div>
+        <div class="chip" data-v="oily" onclick="selSk(this)">Oily</div>
+        <div class="chip" data-v="combination" onclick="selSk(this)">Combination</div>
+        <div class="chip" data-v="sensitive" onclick="selSk(this)">Sensitive</div>
+      </div>
+      <div class="ob-sub" style="margin-top:.5rem">Current skincare products? (optional)</div>
+      <textarea class="finput" id="ep-txt" placeholder="e.g. Nivea moisturiser, Cetaphil cleanser... or leave empty"></textarea>
+    </div>
+
+    <!-- Step 7: Budget -->
+    <div class="ob-step" id="ob-7">
+      <div class="ob-q">Almost done! Your budget?</div>
+      <div class="ob-sub">Helps us recommend products and brands that fit you.</div>
+      <div class="tile-grid">
+        <div class="tile" data-v="budget" onclick="selBg(this)"><span class="tile-icon">💚</span><div class="tile-lbl">Budget-friendly</div><div class="tile-desc">Great style without overspending</div></div>
+        <div class="tile" data-v="mid-range" onclick="selBg(this)"><span class="tile-icon">💛</span><div class="tile-lbl">Mid-range</div><div class="tile-desc">Quality at reasonable prices</div></div>
+        <div class="tile" data-v="luxury" onclick="selBg(this)"><span class="tile-icon">🥇</span><div class="tile-lbl">Luxury</div><div class="tile-desc">Premium brands, high-end products</div></div>
+        <div class="tile" data-v="mixed" onclick="selBg(this)"><span class="tile-icon">🔀</span><div class="tile-lbl">Mix it up</div><div class="tile-desc">Splurge on some, save on others</div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="ob-nav">
+    <button class="btn-back" id="ob-bk" onclick="obBack()" style="display:none">Back</button>
+    <button class="btn-next" id="ob-nx" onclick="obNext()">Continue</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="screen" id="sa">
+  <div class="app-hd">
+    <div class="app-logo">Groom<span>AI</span> <span style="font-size:10px;color:var(--muted);font-family:DM Sans,sans-serif;font-weight:400;vertical-align:middle">v11</span></div>
+    <div class="hdr-right">
+      <div id="k-st" style="font-size:11px;color:var(--green);display:none">Connected</div>
+      <button class="lang-btn" id="lang-tog" onclick="toggleLang()">DE</button>
+      <button class="key-btn" onclick="showOv()">API Key</button>
+      <button class="prof-btn" onclick="resetProf()" title="Reset profile">👤</button>
+    </div>
+  </div>
+  <div class="app-nav">
+    <div class="ntab active" onclick="sw('analyze')">🔍 Analyze</div>
+    <div class="ntab" onclick="sw('wardrobe')">👗 Wardrobe</div>
+    <div class="ntab" onclick="sw('daily')">🌤 Today</div>
+    <div class="ntab" onclick="sw('products')">🧴 Products</div>
+    <div class="ntab" onclick="sw('chat')">💬 Chat</div>
+  </div>
+
+  <!-- ANALYZE -->
+  <div class="page active" id="p-analyze">
+    <div class="two-col">
+      <div class="lp">
+        <div><div class="pt" id="an-photo-lbl">Your photo</div><div class="ps" id="an-photo-sub">Profile photo loaded — or change below</div></div>
+        <div id="a-prof-preview" style="display:none;position:relative;border-radius:var(--r);overflow:hidden;border:.5px solid var(--border)">
+          <img id="a-prof-img" alt="" style="width:100%;max-height:200px;object-fit:cover;display:block">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.55));padding:.5rem .75rem;display:flex;justify-content:space-between;align-items:center">
+            <span style="color:#fff;font-size:12px">✓ Profile photo</span>
+            <label style="color:var(--gold);font-size:12px;cursor:pointer;font-weight:500">Change
+              <input type="file" accept="image/*" capture="user" onchange="aPhoto(event)" style="display:none">
+            </label>
+          </div>
+        </div>
+        <div class="ub" id="a-ub">
+          <input type="file" accept="image/*" capture="user" onchange="aPhoto(event)">
+          <div class="uph" id="a-ph"><div class="ui">📷</div><div style="font-size:13px;color:var(--muted)">Take photo or upload</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Camera or gallery</div></div>
+          <img id="a-prev" alt="">
+        </div>
+        <div class="prof-bar" id="prof-bar"></div>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <label class="fl" id="an-ctx-lbl">Extra context (optional)</label>
+          <input type="text" class="si" id="a-notes" placeholder="e.g. job interview, wedding, date…">
+        </div>
+        <button class="btn-p" id="a-btn" onclick="runA()">Analyze My Look</button>
+      </div>
+      <div class="rp" id="a-res"><div class="cs"><div class="cs-ic">✦</div><h2 id="an-empty-h">Your style profile awaits</h2><p id="an-empty-p">Tap Analyze for a complete personalised style guide.</p></div></div>
+    </div>
+  </div>
+
+  <!-- WARDROBE -->
+  <div class="page" id="p-wardrobe">
+    <div class="two-col">
+      <div class="lp">
+        <div><div class="pt">Face photo</div><div class="ps">For skin tone matching</div></div>
+        <div class="ub" id="wf-ub">
+          <input type="file" accept="image/*" onchange="wfPhoto(event)">
+          <div class="uph" id="wf-ph"><div class="ui">📷</div><div style="font-size:13px;color:var(--muted)">Upload face photo</div></div>
+          <img id="wf-prev" alt="">
+        </div>
+        <div><div class="pt">Your clothes</div><div class="ps">Upload up to 9 clothing photos</div></div>
+        <div class="wg" id="wg"></div>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <label class="fl">Occasion</label>
+          <select id="w-oc"><option value="everyday">Everyday casual</option><option value="work">Work / office</option><option value="date">Date night</option><option value="formal">Formal event</option><option value="gym">Gym</option></select>
+        </div>
+        <button class="btn-p" id="w-btn" onclick="runW()" disabled>Match My Wardrobe</button>
+      </div>
+      <div class="rp" id="w-res"><div class="cs"><div class="cs-ic">👗</div><h2>Upload your wardrobe</h2><p>Upload clothing photos. AI ranks each by how well it matches your features.</p></div></div>
+    </div>
+  </div>
+
+  <!-- DAILY -->
+  <div class="page" id="p-daily">
+    <div class="two-col">
+      <div class="lp">
+        <div><div class="pt">Today's outfit</div><div class="ps">Based on your mood and weather</div></div>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <label class="fl">How are you feeling today?</label>
+          <div class="sc" id="mood-t">
+            <div class="sch" data-v="confident" onclick="selMt(this)">Confident</div>
+            <div class="sch" data-v="relaxed" onclick="selMt(this)">Relaxed</div>
+            <div class="sch" data-v="professional" onclick="selMt(this)">Professional</div>
+            <div class="sch" data-v="romantic" onclick="selMt(this)">Romantic</div>
+            <div class="sch" data-v="energetic" onclick="selMt(this)">Energetic</div>
+            <div class="sch" data-v="low-key" onclick="selMt(this)">Low-key</div>
+            <div class="sch" data-v="creative" onclick="selMt(this)">Creative</div>
+            <div class="sch" data-v="bold" onclick="selMt(this)">Bold</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <label class="fl">Today's occasion</label>
+          <select id="d-oc"><option value="everyday">Everyday</option><option value="work or university">Work / University</option><option value="social event">Social event</option><option value="date">Date</option><option value="formal event">Formal event</option><option value="staying home">Staying home</option></select>
+        </div>
+        <div class="wd-box" id="wd-disp"><div style="color:var(--muted)">Detecting weather...</div></div>
+        <button class="btn-p" id="d-btn" onclick="runD()">Get Today's Outfit</button>
+      </div>
+      <div class="rp" id="d-res"><div class="cs"><div class="cs-ic">🌤</div><h2>What to wear today</h2><p>Pick your mood and occasion. We check today's weather and suggest the perfect outfit.</p></div></div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="page" id="p-products">
+    <div class="two-col">
+      <div class="lp">
+        <div><div class="pt">Product checker</div><div class="ps">Are your products right for your skin?</div></div>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <label class="fl">Your current products</label>
+          <textarea class="finput" id="up-txt" style="min-height:130px" placeholder="List your skincare or grooming products:&#10;- Nivea moisturiser&#10;- Head & Shoulders&#10;- Cetaphil cleanser&#10;(or leave empty for recommendations)"></textarea>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <label class="fl">Skin concerns right now</label>
+          <div class="sc" id="con-c">
+            <div class="sch" data-v="acne" onclick="togC(this)">Acne</div>
+            <div class="sch" data-v="dryness" onclick="togC(this)">Dryness</div>
+            <div class="sch" data-v="oiliness" onclick="togC(this)">Oiliness</div>
+            <div class="sch" data-v="dark spots" onclick="togC(this)">Dark spots</div>
+            <div class="sch" data-v="redness" onclick="togC(this)">Redness</div>
+            <div class="sch" data-v="ageing" onclick="togC(this)">Ageing</div>
+            <div class="sch" data-v="sensitivity" onclick="togC(this)">Sensitivity</div>
+          </div>
+        </div>
+        <button class="btn-p" id="pr-btn" onclick="runPr()">Check My Products</button>
+      </div>
+      <div class="rp" id="pr-res"><div class="cs"><div class="cs-ic">🧴</div><h2>Product checker</h2><p>List what you use. AI checks if each product suits your skin and suggests better alternatives if needed.</p></div></div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="page" id="p-chat">
+    <div class="chat-layout">
+      <div class="chat-bar"><div class="chat-av">✦</div><div><div class="chat-nm">GroomAI Stylist</div><div class="chat-st">Online — ask me anything</div></div></div>
+      <div class="chat-msgs" id="c-msgs">
+        <div class="msg ai"><div class="mav">✦</div><div class="mb">Hi! I'm your personal GroomAI stylist.<br><br>Ask me anything about style, colours, grooming, skincare, outfits, or perfumes — I'm here every day to help you look and feel your best.</div></div>
+      </div>
+      <div class="qchips" id="qchs">
+        <div class="qch" onclick="sq('What colours suit my skin tone?')">My colours</div>
+        <div class="qch" onclick="sq('What beard style suits my face shape?')">Beard advice</div>
+        <div class="qch" onclick="sq('Best skincare routine for my skin type?')">Skincare</div>
+        <div class="qch" onclick="sq('Suggest a perfume for me')">Perfume</div>
+        <div class="qch" onclick="sq('What hairstyle suits my face shape?')">Hairstyle</div>
+      </div>
+      <div class="chat-ia">
+        <textarea class="chat-in" id="c-in" placeholder="Ask about style, grooming, skincare…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendC()}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <button class="chat-sd" id="c-sd" onclick="sendC()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="ib">
+  <div style="display:flex;align-items:center;gap:9px">
+    <img src="icon-192.png" style="width:34px;height:34px;border-radius:8px" alt="">
+    <div><div style="font-size:13px;font-weight:500">Install GroomAI</div><div style="font-size:11px;opacity:.5">Add to home screen</div></div>
+  </div>
+  <div style="display:flex;gap:7px">
+    <button class="ib-b" onclick="document.getElementById('ib').style.display='none'" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff">Later</button>
+    <button class="ib-b" onclick="instApp()" style="background:var(--gold);border:none;color:var(--char);font-weight:600">Install</button>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────
+const P={photo:null,country:'',age:25,styleId:'',moods:[],skinType:'',existProd:'',budget:''};
+let wFace=null,clothes=[],chatHist=[],lastA=null,moodT='',concerns=[],weather='',dP=null,step=1;
+const TOTAL=7;
+
+const COUNTRIES=["Afghanistan","Albania","Algeria","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahrain","Bangladesh","Belarus","Belgium","Bolivia","Bosnia","Brazil","Bulgaria","Cambodia","Cameroon","Canada","Chile","China","Colombia","Croatia","Cuba","Cyprus","Czech Republic","Denmark","Ecuador","Egypt","Ethiopia","Finland","France","Georgia","Germany","Ghana","Greece","Guatemala","Hungary","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kuwait","Lebanon","Libya","Malaysia","Mexico","Morocco","Nepal","Netherlands","New Zealand","Nigeria","Norway","Oman","Pakistan","Palestine","Panama","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Saudi Arabia","Senegal","Serbia","Singapore","South Africa","South Korea","Spain","Sri Lanka","Sudan","Sweden","Switzerland","Syria","Taiwan","Tanzania","Thailand","Tunisia","Turkey","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Venezuela","Vietnam","Yemen","Zimbabwe"];
+
+// ── API KEY ────────────────────────────────────────────
+const gKey=()=>localStorage.getItem('gai_key')||'';
+function vk(v){/* validation removed - button always clickable */}
+function saveKey(){
+  const inp=document.getElementById('ak-in');
+  const v=(inp.value||'').trim();
+  if(v.length<10){
+    inp.style.borderColor='red';
+    document.getElementById('ak-er').style.display='block';
+    return;
+  }
+  localStorage.setItem('gai_key',v);
+  document.getElementById('api-ov').style.display='none';
+  document.getElementById('k-st').style.display='block';
+  const sv=loadP();
+  if(sv&&sv.photo&&sv.country){Object.assign(P,sv);show('sa');updProfBar();getWx();}
+  else{show('sw');}
+}
+function showOv(){const x=gKey();if(x){document.getElementById('ak-in').value=x;vk(x);}document.getElementById('api-ov').style.display='flex';}
+
+// ── SCREENS ────────────────────────────────────────────
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+// ── WELCOME ────────────────────────────────────────────
+function goStart(){
+  const sv=loadP();
+  if(sv&&sv.photo&&sv.country){Object.assign(P,sv);show('sa');updProfBar();getWx();return;}
+  show('so');updOb();
+}
+
+// ── ONBOARDING ─────────────────────────────────────────
+function updOb(){
+  document.querySelectorAll('.ob-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('ob-'+step).classList.add('active');
+  document.getElementById('ob-pf').style.width=(step/TOTAL*100)+'%';
+  document.getElementById('ob-lbl').textContent=t('ob_step')+' '+step+' '+t('ob_of')+' '+TOTAL;
+  document.getElementById('ob-bk').style.display=step>1?'block':'none';
+  const nx=document.getElementById('ob-nx');
+  nx.textContent=step===TOTAL?t('ob_enter'):t('ob_continue');
+  nx.disabled=!valid();
+}
+function valid(){
+  if(step===1)return!!P.photo;
+  if(step===2)return!!P.country;
+  if(step===3)return true;
+  if(step===4)return!!P.styleId;
+  if(step===5)return P.moods.length>0;
+  if(step===6)return!!P.skinType;
+  if(step===7)return!!P.budget;
+  return true;
+}
+function obNext(){
+  if(!valid())return;
+  if(step===TOTAL){P.existProd=document.getElementById('ep-txt').value;saveP();show('sa');updProfBar();getWx();return;}
+  step++;updOb();
+}
+function obBack(){if(step>1){step--;updOb();}}
+
+function obPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const img=document.getElementById('ob-prev');
+  img.src=URL.createObjectURL(f);
+  // Hide options, show preview
+  const opts=document.getElementById('ob-ph-opts');
+  const wrap=document.getElementById('ob-prev-wrap');
+  if(opts)opts.style.display='none';
+  if(wrap)wrap.style.display='block';
+  const r=new FileReader();
+  r.onload=ev=>{P.photo=ev.target.result.split(',')[1];updOb();};
+  r.readAsDataURL(f);
+}
+
+function cFilter(q){const l=document.getElementById('c-list');const f=q?COUNTRIES.filter(c=>c.toLowerCase().includes(q.toLowerCase())):COUNTRIES;l.innerHTML=f.slice(0,8).map(c=>`<div class="citem" onclick="selC('${c}')">${c}</div>`).join('');l.classList.add('show');}
+function selC(c){P.country=c;document.getElementById('c-inp').value=c;document.getElementById('c-list').classList.remove('show');const s=document.getElementById('c-sel');s.textContent=t('ob2_sel')+c;s.style.display='block';updOb();}
+
+function ageUpd(v){P.age=parseInt(v);document.getElementById('age-n').textContent=v>=80?'80+':v;}
+function selId(el){document.querySelectorAll('#ob-4 .tile').forEach(t=>t.classList.remove('active'));el.classList.add('active');P.styleId=el.dataset.v;updOb();}
+function togM(el){el.classList.toggle('active');const v=el.dataset.v;if(el.classList.contains('active'))P.moods.push(v);else P.moods=P.moods.filter(s=>s!==v);updOb();}
+function selSk(el){document.querySelectorAll('#skin-c .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');P.skinType=el.dataset.v;updOb();}
+function selBg(el){document.querySelectorAll('#ob-7 .tile').forEach(t=>t.classList.remove('active'));el.classList.add('active');P.budget=el.dataset.v;updOb();}
+
+// ── STORAGE ────────────────────────────────────────────
+function saveP(){localStorage.setItem('gai_prof',JSON.stringify(P));}
+function loadP(){try{return JSON.parse(localStorage.getItem('gai_prof')||'null');}catch{return null;}}
+function updProfBar(){
+  const el=document.getElementById('prof-bar');
+  if(!P.country)return;
+  el.innerHTML=`<strong>${t('prof_title')}</strong>${P.country} &middot; ${lang==='de'?'Alter':'Age'} ${P.age>=80?'80+':P.age} &middot; ${P.styleId} &middot; ${P.skinType} ${lang==='de'?'Haut':'skin'} &middot; ${P.budget}`;
+  el.style.display='block';
+  // Auto-load profile photo into Analyze tab
+  if(P.photo){
+    const profPrev=document.getElementById('a-prof-preview');
+    const profImg=document.getElementById('a-prof-img');
+    const uploadBox=document.getElementById('a-ub');
+    if(profPrev&&profImg&&uploadBox){
+      profImg.src='data:image/jpeg;base64,'+P.photo;
+      profPrev.style.display='block';
+      uploadBox.style.display='none';
+    }
+  }
+}
+function resetProf(){if(confirm(t('reset_confirm'))){localStorage.removeItem('gai_prof');step=1;Object.assign(P,{photo:null,country:'',age:25,styleId:'',moods:[],skinType:'',existProd:'',budget:''});show('so');updOb();}}
+
+// ── WEATHER ────────────────────────────────────────────
+function getWx(){
+  const el=document.getElementById('wd-disp');
+  if(!navigator.geolocation){el.innerHTML=t('wx_unavail');return;}
+  el.innerHTML=`<div style="color:var(--muted)">${t('wx_detecting')}</div>`;
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{const{latitude:la,longitude:lo}=pos.coords;const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weathercode`);const d=await r.json();const tmp=Math.round(d.current.temperature_2m),c=d.current.weathercode;const desc=wxD(c),icon=wxI(c);weather=`${tmp}°C, ${desc}`;el.innerHTML=`<div style="font-size:1.4rem">${icon}</div><div style="margin-top:3px"><strong>${tmp}°C — ${desc}</strong></div><div style="font-size:11px;color:var(--muted)">${t('wx_auto')}</div>`;}
+    catch{el.innerHTML=t('wx_err');}
+  },()=>{el.innerHTML=t('wx_denied');});
+}
+function wxD(c){if(c===0)return t('wx_clear');if(c<=2)return t('wx_partly');if(c===3)return t('wx_over');if(c<=67)return t('wx_rain');if(c<=77)return t('wx_snow');return t('wx_storm');}
+function wxI(c){if(c===0)return'☀️';if(c<=2)return'⛅';if(c===3)return'☁️';if(c<=67)return'🌧️';if(c<=77)return'❄️';return'⛈️';}
+
+// ── TABS ───────────────────────────────────────────────
+function sw(t){document.querySelectorAll('.ntab').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));const tabs=['analyze','wardrobe','daily','products','chat'];document.querySelectorAll('.ntab')[tabs.indexOf(t)].classList.add('active');document.getElementById('p-'+t).classList.add('active');}
+function selMt(el){document.querySelectorAll('#mood-t .sch').forEach(c=>c.classList.remove('active'));el.classList.add('active');moodT=el.dataset.v;}
+function togC(el){el.classList.toggle('active');const v=el.dataset.v;if(el.classList.contains('active'))concerns.push(v);else concerns=concerns.filter(c=>c!==v);}
+
+// ── GEMINI ─────────────────────────────────────────────
+async function callG({contents,system}){
+  const key=gKey();if(!key){showOv();throw new Error('No API key. Enter your Gemini key.');}
+  const msgs=[];
+  if(system){msgs.push({role:'user',parts:[{text:system}]});msgs.push({role:'model',parts:[{text:'Understood.'}]});}
+  for(const m of contents){
+    const role=m.role==='assistant'?'model':'user';
+    let parts=[];
+    if(typeof m.content==='string'){parts=[{text:m.content}];}
+    else if(Array.isArray(m.content)){for(const it of m.content){if(it.type==='text')parts.push({text:it.text});else if(it.type==='image')parts.push({inlineData:{mimeType:'image/jpeg',data:it.data}});}}
+    msgs.push({role,parts});
+  }
+  // Try models in order until one works
+  const MODELS=['gemini-2.5-flash','gemini-2.0-flash','gemini-2.0-flash-001','gemini-2.0-flash-lite'];
+  let lastErr='';
+  for(const model of MODELS){
+    try{
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:msgs,generationConfig:{maxOutputTokens:8192,temperature:0.4}})});
+      const d=await res.json();
+      if(d.error){
+        if(d.error.code===401||d.error.code===403){localStorage.removeItem('gai_key');showOv();throw new Error('Invalid API key');}
+        lastErr=d.error.message||'Gemini error';
+        continue; // try next model
+      }
+      const result=d.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
+      if(result){localStorage.setItem('gai_model',model);return result;}
+    }catch(e){if(e.message==='Invalid API key')throw e;lastErr=e.message;}
+  }
+  throw new Error('No working model found. Please create a new API key at aistudio.google.com');
+}
+function xJSON(raw){
+  let t=raw.replace(/```json|```/g,'').trim();
+  const s=t.indexOf('{');
+  if(s===-1)throw new Error('No JSON in response. Try again.');
+  t=t.slice(s);
+  // Try full parse first
+  try{return JSON.parse(t);}catch(e){}
+  // Try up to last complete closing brace
+  const e=t.lastIndexOf('}');
+  if(e>0){try{return JSON.parse(t.slice(0,e+1));}catch(e2){}}
+  // Try repair
+  try{return JSON.parse(rpJ(t));}catch(e3){}
+  throw new Error('Response cut off. Try again.');
+}
+function rpJ(s){
+  // Clean trailing incomplete key-value pairs
+  s=s.replace(/,\s*"[^"]*"\s*:\s*"[^"]*$/,'')
+     .replace(/,\s*"[^"]*"\s*:\s*\[[\s\S]*$/,'')
+     .replace(/,\s*"[^"]*"\s*:\s*$/,'')
+     .replace(/,\s*"[^"]*"\s*$/,'');
+  // Close any open string
+  let inS=false,esc=false,d=[];
+  for(const c of s){
+    if(esc){esc=false;continue;}
+    if(c==='\\'&&inS){esc=true;continue;}
+    if(c==='"'){inS=!inS;continue;}
+    if(inS)continue;
+    if(c==='{')d.push('}');
+    else if(c==='[')d.push(']');
+    else if(c==='}'||c===']')d.pop();
+  }
+  if(inS)s+='"';
+  return s+d.reverse().join('');
+}
+function ldg(id,msg){document.getElementById(id).innerHTML=`<div class="cs"><div class="spin"></div><div class="ll">${msg}<span class="dots"></span></div></div>`;}
+function shErr(id,msg,fn){document.getElementById(id).innerHTML=`<div style="padding:1.4rem"><div class="err-box"><strong>Error:</strong> ${msg}<br><br><button class="btn-p" style="max-width:170px;margin-top:.5rem" onclick="${fn}()">Try again</button></div></div>`;}
+
+// ── ANALYZE ────────────────────────────────────────────
+function aPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  // Show in profile preview area
+  const profPrev=document.getElementById('a-prof-preview');
+  const profImg=document.getElementById('a-prof-img');
+  const uploadBox=document.getElementById('a-ub');
+  const objUrl=URL.createObjectURL(f);
+  profImg.src=objUrl;
+  profPrev.style.display='block';
+  uploadBox.style.display='none';
+  // Read base64 for Gemini API
+  const r=new FileReader();
+  r.onload=ev=>{P.photo=ev.target.result.split(',')[1];};
+  r.readAsDataURL(f);
+}
+
+async function runA(){
+  if(!P.photo)return;
+  document.getElementById('a-btn').disabled=true;
+  ldg('a-res','Analyzing your features');
+  const notes=document.getElementById('a-notes').value;
+  const prompt=`You are GroomAI, expert personal stylist. Analyze this photo VERY carefully.
+Profile: country=${P.country}, age=${P.age}, style=${P.styleId}, personality=${P.moods.join(', ')}, skin_type=${P.skinType}, budget=${P.budget}${notes?', context='+notes:''}
+
+CRITICAL INSTRUCTIONS:
+1. Look at the ACTUAL skin tone in this photo - analyze the exact shade, depth and undertone FROM THE IMAGE
+2. The color palette MUST be unique to THIS person's specific skin tone - not generic for their country
+3. Two people from the same country with different skin tones must get COMPLETELY DIFFERENT color palettes
+4. Base colors on: actual skin depth (light/medium/dark/deep), undertone (warm/cool/neutral) seen in photo
+5. Hairstyle and beard must match the ACTUAL hair and beard visible in this photo
+
+Respond ONLY with valid JSON (no markdown):
+{"analysis":{"skin_tone":"very specific description of exact shade seen in photo","undertone":"warm|cool|neutral","face_shape":"oval|round|square|heart|oblong|diamond","hair_type":"description of actual hair visible","beard_growth":"actual beard density visible in photo, or n/a","observation":"1-2 friendly sentences about current look"},"color_palette":{"explanation":"explain exactly WHY these colors suit THIS specific skin tone and undertone seen in the photo","best_colors":[{"name":"","hex":"#xxxxxx","why":"specific reason for this exact skin tone","clothing":""},{"name":"","hex":"#xxxxxx","why":"","clothing":""},{"name":"","hex":"#xxxxxx","why":"","clothing":""},{"name":"","hex":"#xxxxxx","why":"","clothing":""},{"name":"","hex":"#xxxxxx","why":"","clothing":""},{"name":"","hex":"#xxxxxx","why":"","clothing":""}],"avoid_colors":[{"name":"","hex":"#xxxxxx","why":"specific reason this clashes with their skin tone"},{"name":"","hex":"#xxxxxx","why":""}]},"hairstyle":{"recommendation":"based on face shape and actual hair type visible","top_3":["Style name: brief description","Style name: brief description","Style name: brief description"],"tips":"practical tips for their hair type"},"beard_or_brows":{"type":"${P.styleId==='feminine'?'eyebrows':'beard'}","recommendation":"based on actual beard/brows visible and face shape","top_3":["Style name: brief description","Style name: brief description","Style name: brief description"],"tips":""},"skincare":{"routine_am":"numbered steps","routine_pm":"numbered steps","key_ingredients":["","",""],"product_types":["","","",""]},"perfume":{"family":"fragrance family","reason":"why suits their skin tone and style","notes":["top notes","middle notes","base notes"],"examples":["brand example 1","brand example 2"]},"product_links":[{"label":"","query":"amazon.de search query","icon":"emoji"},{"label":"","query":"","icon":"emoji"},{"label":"","query":"","icon":"emoji"},{"label":"","query":"","icon":"emoji"}],"outfit_ideas":[{"occasion":"","outfit":"specific outfit using colors from their palette","why":""},{"occasion":"","outfit":"","why":""},{"occasion":"","outfit":"","why":""}]}`;
+  try{
+    const raw=await callG({contents:[{role:'user',content:[{type:'image',data:P.photo},{type:'text',text:prompt}]}]});
+    const j=xJSON(raw);lastA=j;renderA(j);
+  }catch(e){shErr('a-res',e.message,'runA');}
+  document.getElementById('a-btn').disabled=false;
+}
+
+function renderA(r){
+  const a=r.analysis,cp=r.color_palette;
+
+  // ── Season detection from undertone + palette ──────────
+  function getSeason(undertone, colors){
+    const names=(colors||[]).map(c=>(c.name||'').toLowerCase()).join(' ');
+    if(undertone==='warm'){
+      if(names.includes('orange')||names.includes('rust')||names.includes('terracotta'))return{label:'Warm Autumn',color:'#C27B3E',bg:'#FEF3E2'};
+      return{label:'Warm Spring',color:'#C9830A',bg:'#FFFBEB'};
+    }
+    if(undertone==='cool'){
+      if(names.includes('navy')||names.includes('burgundy')||names.includes('teal'))return{label:'Deep Winter',color:'#2A4D8F',bg:'#EFF6FF'};
+      return{label:'Cool Summer',color:'#6B7CB5',bg:'#F0F0FF'};
+    }
+    if(names.includes('olive')||names.includes('green'))return{label:'Soft Autumn',color:'#7A6B3A',bg:'#FEFCE8'};
+    return{label:'Soft Summer',color:'#8B6B8B',bg:'#FDF4FF'};
+  }
+  const season=getSeason(a.undertone,cp.best_colors);
+
+  // ── Build HTML ─────────────────────────────────────────
+  const bSw=cp.best_colors.map(c=>`
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:44px;height:44px;border-radius:50%;background:${c.hex};box-shadow:0 2px 8px rgba(0,0,0,.15);position:relative;cursor:pointer" title="${c.why}">
+        <div style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;background:#16A34A;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff">✓</div>
+      </div>
+      <div style="font-size:10px;font-weight:500;text-align:center;color:var(--char);max-width:52px;line-height:1.3">${c.name}</div>
+      <div style="font-size:9px;color:var(--muted);text-align:center;max-width:52px;line-height:1.2">${c.clothing}</div>
+    </div>`).join('');
+
+  const aSw=(cp.avoid_colors||[]).map(c=>`
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="width:36px;height:36px;border-radius:50%;background:${c.hex};box-shadow:0 2px 6px rgba(0,0,0,.12);position:relative">
+        <div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;background:#DC2626;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:7px;color:#fff">✗</div>
+      </div>
+      <div style="font-size:10px;font-weight:500;text-align:center;color:var(--muted);max-width:44px;line-height:1.3">${c.name}</div>
+    </div>`).join('');
+
+  const bar=cp.best_colors.slice(0,6).map(c=>`<div style="flex:1;height:100%;background:${c.hex}"></div>`).join('');
+
+  const links=(r.product_links||[]).map(p=>`
+    <a class="pl" href="https://www.amazon.de/s?k=${encodeURIComponent(p.query)}" target="_blank" rel="noopener">
+      <div class="pl-ic">${p.icon}</div>
+      <div class="pl-inf"><div class="pl-nm">${p.label}</div><div class="pl-sr">Amazon.de</div></div>
+      <div class="pl-ar">↗</div>
+    </a>`).join('');
+
+  // ── Hairstyle & Beard cards ────────────────────────────
+  const hairIcons={'French Crop':'✂️','Side Part':'💈','Quiff':'💈','Buzz':'⚡','Fade':'💈','Undercut':'✂️','Pompadour':'💈','Slick':'🎩','Bun':'🪢','Curtain':'💈','Caesar':'✂️','Afro':'✨','Dread':'🪢'};
+  const beardIcons={'Full':'🧔','Stubble':'✨','Long':'🧔','Goatee':'🎯','Boxed':'📦','Shaven':'✨','Circle':'⭕','Van Dyke':'🎨'};
+  function getIcon(s,map){const k=Object.keys(map).find(k=>s.toLowerCase().includes(k.toLowerCase()));return k?map[k]:'💈';}
+  
+  const hCards=(r.hairstyle.top_3||[]).map((s,i)=>`
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:${i===0?'#F9F9F9':'#fff'};border:1px solid var(--border);border-radius:12px;margin-bottom:8px">
+      <div style="width:36px;height:36px;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${getIcon(s,hairIcons)}</div>
+      <div style="flex:1">
+        ${i===0?'<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);margin-bottom:3px">Recommended</div>':''}
+        <div style="font-size:13px;font-weight:600;color:var(--char)">${s.split(':')[0]}</div>
+        ${s.includes(':')?`<div style="font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5">${s.split(':').slice(1).join(':').trim()}</div>`:''}
+      </div>
+    </div>`).join('');
+
+  const bCards=(r.beard_or_brows.top_3||[]).map((s,i)=>`
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:${i===0?'#F9F9F9':'#fff'};border:1px solid var(--border);border-radius:12px;margin-bottom:8px">
+      <div style="width:36px;height:36px;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${getIcon(s,beardIcons)}</div>
+      <div style="flex:1">
+        ${i===0?'<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gold);margin-bottom:3px">Recommended</div>':''}
+        <div style="font-size:13px;font-weight:600;color:var(--char)">${s.split(':')[0]}</div>
+        ${s.includes(':')?`<div style="font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5">${s.split(':').slice(1).join(':').trim()}</div>`:''}
+      </div>
+    </div>`).join('');
+
+  // ── Outfit cards (no 2D figure) ────────────────────────
+  const outfitIcons={'casual':'👕','work':'💼','office':'💼','date':'🌹','evening':'🌙','formal':'🎩','gym':'💪','home':'🏠'};
+  function getOutfitIcon(occ){const k=Object.keys(outfitIcons).find(k=>occ.toLowerCase().includes(k));return k?outfitIcons[k]:'✨';}
+  const palette=r.color_palette?.best_colors||[];
+  const outs=r.outfit_ideas.map((o,idx)=>{
+    const dotColors=palette.filter(p=>o.outfit.toLowerCase().includes(p.name.toLowerCase())).slice(0,3);
+    return `<div style="padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px${idx===0?';border-color:var(--gold);background:var(--gold-l)':''}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:1.3rem">${getOutfitIcon(o.occasion)}</span>
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:${idx===0?'var(--gold)':'var(--muted)'}">${o.occasion}</div>
+          ${idx===0?'<div style="font-size:10px;color:var(--gold);font-weight:500">Best match</div>':''}
+        </div>
+      </div>
+      <div style="font-size:13.5px;font-weight:500;line-height:1.6;color:var(--char)">${o.outfit}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5">${o.why}</div>
+      ${dotColors.length?`<div style="display:flex;gap:6px;margin-top:10px;align-items:center">
+        <span style="font-size:11px;color:var(--muted)">Colors:</span>
+        ${dotColors.map(c=>`<div style="width:18px;height:18px;border-radius:50%;background:${c.hex};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.15)" title="${c.name}"></div>`).join('')}
+      </div>`:''}
+    </div>`;}).join('');
+
+  // ── Features grid ──────────────────────────────────────
+  const features=[
+    {label:'Skin Tone',value:a.skin_tone},
+    {label:'Undertone',value:a.undertone.charAt(0).toUpperCase()+a.undertone.slice(1)},
+    {label:'Face Shape',value:a.face_shape.charAt(0).toUpperCase()+a.face_shape.slice(1)},
+    {label:'Hair Type',value:a.hair_type},
+  ];
+  const featGrid=features.map(f=>`
+    <div style="background:var(--surface2);border-radius:10px;padding:10px 12px">
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:4px">${f.label}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--char);line-height:1.4">${f.value}</div>
+    </div>`).join('');
+
+  document.getElementById('a-res').innerHTML=`
+  <div style="max-width:680px;margin:0 auto;padding:1.25rem">
+
+    <!-- Season Card -->
+    <div style="background:${season.bg};border:1px solid ${season.color}33;border-radius:18px;padding:1.25rem 1.4rem;margin-bottom:1rem;position:relative;overflow:hidden">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${season.color};margin-bottom:4px">Your Colour Season</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:400;color:${season.color};line-height:1.1;margin-bottom:8px">${season.label}</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">${cp.explanation}</div>
+      <div style="font-size:12px;font-style:italic;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid ${season.color}22">${a.observation}</div>
+    </div>
+
+    <!-- Features -->
+    <div class="rc">
+      <div class="ch"><div class="ci">🔍</div><div class="ct">Your Features</div></div>
+      <div class="cb">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${featGrid}</div>
+        ${a.beard_growth&&a.beard_growth!=='n/a'?`<div style="background:var(--surface2);border-radius:10px;padding:10px 12px;margin-top:8px"><div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:4px">Natural Beard</div><div style="font-size:13px;font-weight:600;color:var(--char)">${a.beard_growth}</div></div>`:''}
+      </div>
+    </div>
+
+    <!-- Colour Palette -->
+    <div class="rc">
+      <div class="ch"><div class="ci">🎨</div><div class="ct">Your Colour Palette</div></div>
+      <div class="cb">
+        <!-- Colour bar -->
+        <div style="height:10px;border-radius:100px;display:flex;overflow:hidden;margin-bottom:16px;gap:2px">${bar}</div>
+        <!-- Best colours -->
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--green);margin-bottom:12px">✓ Wear These</div>
+        <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:20px">${bSw}</div>
+        <!-- Avoid -->
+        ${aSw?`<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--red);margin-bottom:12px">✗ Avoid These</div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px">${aSw}</div>`:''}
+      </div>
+    </div>
+
+    <!-- Hairstyle -->
+    <div class="rc">
+      <div class="ch"><div class="ci">💈</div><div class="ct">Hairstyle</div></div>
+      <div class="cb">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">${r.hairstyle.recommendation}</div>
+        ${hCards}
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;padding:10px 12px;background:var(--surface2);border-radius:10px;line-height:1.5">💡 ${r.hairstyle.tips}</div>
+      </div>
+    </div>
+
+    <!-- Beard / Brows -->
+    <div class="rc">
+      <div class="ch"><div class="ci">🧔</div><div class="ct">${r.beard_or_brows.type==='eyebrows'?'Eyebrow Shaping':'Beard Advice'}</div></div>
+      <div class="cb">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">${r.beard_or_brows.recommendation}</div>
+        ${bCards}
+        ${r.beard_or_brows.tips?`<div style="font-size:12px;color:var(--muted);margin-top:4px;padding:10px 12px;background:var(--surface2);border-radius:10px;line-height:1.5">💡 ${r.beard_or_brows.tips}</div>`:''}
+      </div>
+    </div>
+
+    <!-- Perfume -->
+    <div class="rc">
+      <div class="ch"><div class="ci">🌸</div><div class="ct">Signature Perfume</div></div>
+      <div class="cb">
+        <div style="font-size:14px;font-weight:700;color:var(--char);margin-bottom:6px">${r.perfume.family}</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">${r.perfume.reason}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+          ${(r.perfume.notes||[]).map((n,i)=>['Top','Middle','Base'][i]?`<div style="display:flex;gap:10px;align-items:center"><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;width:46px">${['Top','Middle','Base'][i]}</div><div style="flex:1;font-size:13px;color:var(--char)">${n}</div></div>`:'').join('')}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${(r.perfume.examples||[]).map(e=>`<span style="background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:500;color:var(--char)">${e}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Skincare -->
+    <div class="rc">
+      <div class="ch"><div class="ci">✨</div><div class="ct">Skincare Routine</div></div>
+      <div class="cb">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div style="background:#FFFBEB;border-radius:12px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:700;color:#B45309;margin-bottom:6px">☀️ Morning</div>
+            <div style="font-size:12.5px;line-height:1.7;color:var(--char)">${r.skincare.routine_am}</div>
+          </div>
+          <div style="background:#EFF6FF;border-radius:12px;padding:12px 14px">
+            <div style="font-size:11px;font-weight:700;color:#1D4ED8;margin-bottom:6px">🌙 Evening</div>
+            <div style="font-size:12.5px;line-height:1.7;color:var(--char)">${r.skincare.routine_pm}</div>
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px">Key Ingredients</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${(r.skincare.key_ingredients||[]).map(i=>`<span style="background:var(--green-l);color:var(--green);border-radius:100px;padding:4px 12px;font-size:12px;font-weight:500">${i}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Outfit Ideas -->
+    <div class="rc">
+      <div class="ch"><div class="ci">👔</div><div class="ct">Outfit Ideas</div></div>
+      <div class="cb">${outs}</div>
+    </div>
+
+    <!-- Shop on Amazon.de -->
+    ${links?`<div class="rc">
+      <div class="ch"><div class="ci">🛒</div><div class="ct">Shop on Amazon.de</div></div>
+      <div class="cb" style="padding:.5rem .75rem">${links}</div>
+    </div>`:''}
+
+  </div>`;
+}
+  r.onload=ev=>{wFace=ev.target.result.split(',')[1];chkW();};
+  r.readAsDataURL(f);
+}
+function handleC(e){const fs=Array.from(e.target.files).slice(0,9-clothes.length);fs.forEach(f=>{const r=new FileReader();r.onload=ev=>{clothes.push({b64:ev.target.result.split(',')[1],url:ev.target.result});renderWG();chkW();};r.readAsDataURL(f);});}
+function remC(i){clothes.splice(i,1);renderWG();chkW();}
+function chkW(){document.getElementById('w-btn').disabled=!(wFace&&clothes.length>0);}
+function renderWG(){const g=document.getElementById('wg');g.innerHTML='';clothes.forEach((c,i)=>{const d=document.createElement('div');d.className='wt';d.innerHTML=`<img src="${c.url}" alt=""><button class="del" onclick="remC(${i})">x</button>`;g.appendChild(d);});if(clothes.length<9){const a=document.createElement('div');a.className='ac';a.innerHTML=`<input type="file" accept="image/*" multiple onchange="handleC(event)"><span>+</span>`;g.appendChild(a);}}
+
+async function runW(){
+  if(!wFace||!clothes.length)return;
+  document.getElementById('w-btn').disabled=true;
+  ldg('w-res','Analysing your wardrobe');
+  const oc=document.getElementById('w-oc').value;
+  const content=[{type:'image',data:wFace},{type:'text',text:`Person face. Country:${P.country}, age:${P.age}, style:${P.styleId}, skin:${P.skinType}.`}];
+  clothes.forEach((c,i)=>{content.push({type:'image',data:c.b64});content.push({type:'text',text:`Clothing item ${i+1}.`});});
+  content.push({type:'text',text:`Analyze face for skin tone. Evaluate each clothing item for occasion: ${oc}. Respond ONLY with valid JSON: {"person":{"skin_tone":"","undertone":"","face_shape":""},"rankings":[{"item_index":1,"score":85,"verdict":"Excellent match","color_analysis":"why","style_note":"note","recommended":true}],"best_combination":"describe best outfit from items","shopping_suggestion":"if poor matches, what to shop for"}`});
+  try{const raw=await callG({contents:[{role:'user',content}]});const j=xJSON(raw);renderW(j);}catch(e){shErr('w-res',e.message,'runW');}
+  document.getElementById('w-btn').disabled=false;
+}
+
+function renderW(r){
+  const ranked=[...r.rankings].sort((a,b)=>b.score-a.score);
+  const cards=ranked.map((item,rk)=>{const c=clothes[item.item_index-1];if(!c)return'';const g=item.score>=65;return`<div class="cc" style="animation:fu .3s ease ${rk*.06}s both"><img src="${c.url}" alt=""><div class="cc-rk">#${rk+1}</div><div class="cc-sc" style="color:${g?'var(--green)':'var(--red)'}">${item.score}%</div><div style="font-size:11px;color:var(--muted);padding:0 7px 3px">${item.verdict}</div><div class="cc-br"><div class="cc-fl" style="width:${item.score}%;background:${g?'var(--green)':'var(--red)'}"></div></div></div>`;}).join('');
+  const det=ranked.map(item=>{const c=clothes[item.item_index-1];if(!c)return'';return`<div style="display:flex;gap:9px;padding:.65rem;background:var(--cream);border-radius:8px;margin-bottom:.45rem;border:.5px solid var(--border)"><img src="${c.url}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0" alt=""><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><strong style="font-size:12.5px">Item ${item.item_index}</strong><span style="font-size:12px;color:${item.score>=65?'var(--green)':'var(--red)'};font-weight:500">${item.score}%</span></div><div style="font-size:12px;color:var(--muted);line-height:1.5">${item.color_analysis}</div><div style="font-size:12px;color:var(--gold);margin-top:2px">${item.style_note}</div></div></div>`;}).join('');
+  document.getElementById('w-res').innerHTML=`<div class="results"><div class="rc"><div class="ch"><div class="ci">🔍</div><div class="ct">Detected features</div></div><div class="cb" style="display:flex;gap:1.25rem;flex-wrap:wrap"><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Skin tone</div><strong>${r.person.skin_tone}</strong></div><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Undertone</div><strong>${r.person.undertone}</strong></div><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">Face shape</div><strong>${r.person.face_shape}</strong></div></div></div><div class="rc"><div class="ch"><div class="ci">🏆</div><div class="ct">Ranked wardrobe</div></div><div class="cb"><div class="cr-g">${cards}</div></div></div><div class="rc"><div class="ch"><div class="ci">📋</div><div class="ct">Detailed breakdown</div></div><div class="cb">${det}</div></div>${r.best_combination?`<div class="rc"><div class="ch"><div class="ci">✨</div><div class="ct">Best combination</div></div><div class="cb">${r.best_combination}</div></div>`:''}</div>`;
+}
+
+// ── DAILY ──────────────────────────────────────────────
+async function runD(){
+  document.getElementById('d-btn').disabled=true;
+  ldg('d-res','Picking your outfit for today');
+  const oc=document.getElementById('d-oc').value;
+  const prompt=`You are GroomAI. Daily outfit recommendation.
+Profile: country=${P.country}, age=${P.age}, style=${P.styleId}, personality=${P.moods.join(', ')}, skin=${P.skinType}, budget=${P.budget}
+Today mood: ${moodT||'neutral'}, occasion: ${oc}, weather: ${weather||'temperate'}
+${lastA?'Undertone: '+lastA.analysis?.undertone+', skin: '+lastA.analysis?.skin_tone:''}
+Respond ONLY with valid JSON: {"outfit":{"top":"with color","bottom":"with color","shoes":"","accessories":"","outerwear":"or none"},"why":"2-3 sentences","color_story":"colors used from palette","grooming_tip":"one quick tip","perfume_today":"suggestion for today","confidence_tip":"one sentence"}`;
+  try{const raw=await callG({contents:[{role:'user',content:[{type:'text',text:prompt}]}]});const j=xJSON(raw);renderD(j);}catch(e){shErr('d-res',e.message,'runD');}
+  document.getElementById('d-btn').disabled=false;
+}
+
+function renderD(r){
+  const o=r.outfit;
+  const items=[{ic:'👕',lb:'Top',vl:o.top},{ic:'👖',lb:'Bottom',vl:o.bottom},{ic:'👟',lb:'Shoes',vl:o.shoes},{ic:'💍',lb:'Accessories',vl:o.accessories},{ic:'🧥',lb:'Outerwear',vl:o.outerwear}].filter(i=>i.vl&&i.vl.toLowerCase()!=='none');
+  const cards=items.map(i=>`<div style="display:flex;align-items:center;gap:9px;padding:.65rem .8rem;background:var(--cream);border:.5px solid var(--border);border-radius:8px;margin-bottom:.45rem"><span style="font-size:1.3rem">${i.ic}</span><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">${i.lb}</div><div style="font-size:13px;font-weight:500">${i.vl}</div></div></div>`).join('');
+  document.getElementById('d-res').innerHTML=`<div class="results"><div class="rc"><div class="ch"><div class="ci">🌤</div><div class="ct">Today's outfit${moodT?' — '+moodT:''}</div></div><div class="cb">${cards}</div></div><div class="rc"><div class="ch"><div class="ci">💡</div><div class="ct">Why this works</div></div><div class="cb"><p>${r.why}</p><div style="margin-top:.6rem;font-size:12.5px;color:var(--muted)">${r.color_story}</div></div></div><div class="rc"><div class="ch"><div class="ci">🌸</div><div class="ct">Perfume today</div></div><div class="cb">${r.perfume_today}</div></div><div class="rc"><div class="ch"><div class="ci">✂️</div><div class="ct">Quick grooming tip</div></div><div class="cb">${r.grooming_tip}</div></div><div style="background:var(--char);color:var(--cream);border-radius:var(--r);padding:1rem 1.15rem;text-align:center;font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic">"${r.confidence_tip}"</div></div>`;
+}
+
+// ── PRODUCTS ────────────────────────────────────────────
+async function runPr(){
+  document.getElementById('pr-btn').disabled=true;
+  ldg('pr-res','Checking your products');
+  const prods=document.getElementById('up-txt').value.trim();
+  const prompt=`You are GroomAI skincare expert. Profile: skin=${P.skinType}, age=${P.age}, country=${P.country}. Concerns: ${concerns.join(', ')||'none'}.
+${lastA?'Detected: '+lastA.analysis?.skin_tone+' skin, '+lastA.analysis?.undertone+' undertone':''}
+Products: ${prods||'none listed'}
+Respond ONLY with valid JSON: {"skin_assessment":"brief assessment","product_reviews":[{"product":"name","verdict":"good|okay|avoid","reason":"why","score":85}],"missing":["product type needed"],"recommended_routine":{"morning":"steps","evening":"steps"},"ingredient_warnings":["ingredient and why avoid"],"budget_picks":[{"type":"","suggestion":"","why":""}]}`;
+  try{const raw=await callG({contents:[{role:'user',content:[{type:'text',text:prompt}]}]});const j=xJSON(raw);renderPr(j);}catch(e){shErr('pr-res',e.message,'runPr');}
+  document.getElementById('pr-btn').disabled=false;
+}
+
+function renderPr(r){
+  const vc={good:'var(--green)',okay:'var(--gold)',avoid:'var(--red)'};
+  const vi={good:'✅',okay:'⚠️',avoid:'❌'};
+  const revs=(r.product_reviews||[]).map(p=>`<div style="display:flex;gap:9px;padding:.65rem .8rem;background:var(--cream);border:.5px solid var(--border);border-radius:8px;margin-bottom:.45rem"><div style="font-size:1.1rem;flex-shrink:0">${vi[p.verdict]||'⚠️'}</div><div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><strong style="font-size:12.5px">${p.product}</strong><span style="font-size:10px;color:${vc[p.verdict]||'var(--muted)'};font-weight:600;text-transform:uppercase">${p.verdict}</span></div><div style="font-size:12px;color:var(--muted);line-height:1.5">${p.reason}</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="width:${p.score||50}%;height:100%;border-radius:2px;background:${vc[p.verdict]||'var(--gold)'}"></div></div></div></div>`).join('');
+  const miss=(r.missing||[]).map(s=>`<span class="pill">+ ${s}</span>`).join('');
+  const warn=(r.ingredient_warnings||[]).map(w=>`<div style="font-size:12px;color:var(--red);margin-bottom:3px">⚠️ ${w}</div>`).join('');
+  const picks=(r.budget_picks||[]).map(p=>`<div style="padding:.65rem .8rem;background:var(--cream);border:.5px solid var(--border);border-radius:8px;margin-bottom:.45rem"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:2px">${p.type}</div><div style="font-size:13px;font-weight:500">${p.suggestion}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">${p.why}</div></div>`).join('');
+  document.getElementById('pr-res').innerHTML=`<div class="results"><div class="rc"><div class="ch"><div class="ci">🔍</div><div class="ct">Skin assessment</div></div><div class="cb">${r.skin_assessment}</div></div>${revs?`<div class="rc"><div class="ch"><div class="ci">✅</div><div class="ct">Your products reviewed</div></div><div class="cb">${revs}</div></div>`:''}<div class="rc"><div class="ch"><div class="ci">📋</div><div class="ct">Recommended routine</div></div><div class="cb"><div style="margin-bottom:.6rem"><div style="font-weight:500;font-size:13px;margin-bottom:3px">☀️ Morning</div><div style="font-size:12.5px;color:var(--muted)">${r.recommended_routine?.morning||''}</div></div><div><div style="font-weight:500;font-size:13px;margin-bottom:3px">🌙 Evening</div><div style="font-size:12.5px;color:var(--muted)">${r.recommended_routine?.evening||''}</div></div></div></div>${miss?`<div class="rc"><div class="ch"><div class="ci">➕</div><div class="ct">What you are missing</div></div><div class="cb">${miss}</div></div>`:''} ${warn?`<div class="rc"><div class="ch"><div class="ci">⚠️</div><div class="ct">Ingredients to avoid</div></div><div class="cb">${warn}</div></div>`:''} ${picks?`<div class="rc"><div class="ch"><div class="ci">💚</div><div class="ct">Budget picks for you</div></div><div class="cb">${picks}</div></div>`:''}</div>`;
+}
+
+// ── CHAT ───────────────────────────────────────────────
+const SYS=`You are GroomAI, a warm expert personal stylist and grooming advisor for all genders and identities. Give specific, actionable advice on clothing, colours, hairstyles, beard grooming, skincare, perfumes and fashion. Keep responses clear and conversational. You know European (especially German) and global style well.`;
+
+async function sendC(){
+  const inp=document.getElementById('c-in');const msg=inp.value.trim();if(!msg)return;
+  inp.value='';inp.style.height='auto';document.getElementById('c-sd').disabled=true;
+  document.getElementById('qchs').style.display='none';
+  addMsg('user',msg);chatHist.push({role:'user',content:msg});
+  const tid='t'+Date.now();addMsg('ai',`<span class="td"></span><span class="td"></span><span class="td"></span>`,tid);
+  try{
+    const sys=SYS+(P.country?`\nUser: country=${P.country}, age=${P.age}, style=${P.styleId}, skin=${P.skinType}`:'')+(lastA?`\nDetected: ${lastA.analysis?.skin_tone} skin, ${lastA.analysis?.undertone} undertone, ${lastA.analysis?.face_shape} face`:'');
+    const reply=await callG({system:sys,contents:chatHist.map(m=>({role:m.role,content:[{type:'text',text:m.content}]}))});
+    document.getElementById(tid)?.remove();chatHist.push({role:'assistant',content:reply});addMsg('ai',fmt(reply));
+  }catch(e){document.getElementById(tid)?.remove();addMsg('ai',`Sorry, error: ${e.message}`);}
+  document.getElementById('c-sd').disabled=false;scrollC();
+}
+function sq(t){document.getElementById('c-in').value=t;sendC();}
+function addMsg(role,html,id){const msgs=document.getElementById('c-msgs');const w=document.createElement('div');w.className=`msg ${role}`;if(id)w.id=id;w.innerHTML=`<div class="mav">${role==='ai'?'✦':'👤'}</div><div class="mb">${html}</div>`;msgs.appendChild(w);scrollC();}
+function scrollC(){const m=document.getElementById('c-msgs');m.scrollTop=m.scrollHeight;}
+function fmt(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');}
+
+// ── LANGUAGE ───────────────────────────────────────────
+let lang='en';
+const T={
+  en:{
+    // API overlay
+    api_free:'100% Free — Google Gemini API',
+    api_steps:'1. Go to <strong>aistudio.google.com/app/apikey</strong><br>2. Sign in with Google account<br>3. Tap <strong>Create API Key</strong><br>4. Copy and paste below',
+    api_label:'Your Free Gemini API Key',
+    api_placeholder:'AIzaSy...',
+    api_err:'Key too short — paste the full key',
+    api_note:'Saved only on this device. Never shared except to Google Gemini API.',
+    api_save:'Save and Start GroomAI',
+    api_link:'Open aistudio.google.com',
+    // Welcome
+    w_title:'Your personal<br><em>style advisor</em>',
+    w_tag:'The stylist only celebrities had — now powered by AI, free for everyone.',
+    wf1:'Colour palette matched to your skin tone and culture',
+    wf2:'Hair and beard advice based on your natural features',
+    wf3:'Match your existing wardrobe to your look',
+    wf4:'Skincare routine and product checker',
+    wf5:'Daily outfit based on mood and weather',
+    wf6:'Perfume matched to your skin and style',
+    w_btn:'Get Started — Free',
+    w_note:'Takes about 2 minutes to set up',
+    // Onboarding
+    ob_step:'Step',
+    ob_of:'of',
+    ob_back:'Back',
+    ob_continue:'Continue',
+    ob_enter:'Enter GroomAI',
+    ob1_q:"Let's start with your photo",
+    ob1_sub:'A clear front-facing photo gives the best results for skin tone and face shape detection.',
+    ob1_tap:'Tap to upload your photo',
+    ob1_fmt:'JPG or PNG',
+    ob1_priv:'Your photo stays on your device only',
+    ob2_q:'Where are you from?',
+    ob2_sub:'Your country helps match style to your culture and climate.',
+    ob2_ph:'Search your country...',
+    ob2_sel:'Selected: ',
+    ob3_q:'How old are you?',
+    ob3_sub:'Age is context — you decide your style, not your age.',
+    ob4_q:'How do you express your style?',
+    ob4_sub:'No judgement — all styles are welcome. This guides your recommendations.',
+    id_masc:'Masculine',id_masc_d:"Classic men's style — shirts, suits, sharp grooming",
+    id_fem:'Feminine',id_fem_d:"Women's style — dresses, soft palettes, accessories",
+    id_andro:'Androgynous',id_andro_d:'Fluid, boundary-free, a blend of both',
+    id_ai:'Let AI decide',id_ai_d:'Based on your photo and natural features',
+    ob5_q:'Your style personality?',
+    ob5_sub:'Pick all that feel like you.',
+    m_classic:'Classic',m_street:'Streetwear',m_smart:'Smart casual',m_mini:'Minimalist',
+    m_bold:'Bold',m_eleg:'Elegant',m_sport:'Sporty',m_trendy:'Trendy',
+    ob6_q:'Your skin type?',
+    ob6_sub:'Helps with skincare and product recommendations.',
+    sk_norm:'Normal',sk_dry:'Dry',sk_oily:'Oily',sk_comb:'Combination',sk_sens:'Sensitive',
+    ob6_prod:'Current skincare products? (optional)',
+    ob6_ph:'e.g. Nivea moisturiser, Cetaphil cleanser... or leave empty',
+    ob7_q:'Almost done! Your budget?',
+    ob7_sub:'Helps us recommend products and brands that fit you.',
+    bg_bud:'Budget-friendly',bg_bud_d:'Great style without overspending',
+    bg_mid:'Mid-range',bg_mid_d:'Quality at reasonable prices',
+    bg_lux:'Luxury',bg_lux_d:'Premium brands, high-end products',
+    bg_mix:'Mix it up',bg_mix_d:'Splurge on some, save on others',
+    // Nav
+    nav_analyze:'🔍 Analyze',nav_wardrobe:'👗 Wardrobe',nav_daily:'🌤 Today',
+    nav_products:'🧴 Products',nav_chat:'💬 Chat',
+    connected:'Connected',api_key_btn:'API Key',
+    // Analyze
+    an_photo:'Your photo',an_photo_s:'Upload a clear front-facing photo',
+    an_tap:'Tap to upload',
+    an_ctx:'Extra context (optional)',an_ctx_ph:'e.g. job interview, wedding, date…',
+    an_btn:'Analyze My Look',
+    an_empty_h:'Your style profile awaits',
+    an_empty_p:'Upload your photo and tap Analyze for a complete personalised style guide.',
+    // Wardrobe
+    wa_face:'Face photo',wa_face_s:'For skin tone matching',
+    wa_tap:'Upload face photo',
+    wa_clothes:'Your clothes',wa_clothes_s:'Upload up to 9 clothing photos',
+    wa_occ:'Occasion',
+    wa_occ1:'Everyday casual',wa_occ2:'Work / office',wa_occ3:'Date night',wa_occ4:'Formal event',wa_occ5:'Gym',
+    wa_btn:'Match My Wardrobe',
+    wa_empty_h:'Upload your wardrobe',
+    wa_empty_p:'Upload clothing photos. AI ranks each by how well it matches your features.',
+    // Daily
+    da_title:"Today's outfit",da_title_s:'Based on your mood and weather',
+    da_mood:'How are you feeling today?',
+    da_occ_lbl:"Today's occasion",
+    da_occ1:'Everyday',da_occ2:'Work / University',da_occ3:'Social event',
+    da_occ4:'Date',da_occ5:'Formal event',da_occ6:'Staying home',
+    da_btn:"Get Today's Outfit",
+    da_empty_h:'What to wear today',
+    da_empty_p:'Pick your mood and occasion. We check today\'s weather and suggest the perfect outfit.',
+    mood_conf:'Confident',mood_relax:'Relaxed',mood_prof:'Professional',mood_rom:'Romantic',
+    mood_ener:'Energetic',mood_low:'Low-key',mood_cre:'Creative',mood_bold:'Bold',
+    // Products
+    pr_title:'Product checker',pr_title_s:'Are your products right for your skin?',
+    pr_lbl:'Your current products',
+    pr_ph:'List your skincare or grooming products:\n- Nivea moisturiser\n- Head & Shoulders\n- Cetaphil cleanser\n(or leave empty for recommendations)',
+    pr_con:'Skin concerns right now',
+    con_acne:'Acne',con_dry:'Dryness',con_oil:'Oiliness',con_dark:'Dark spots',
+    con_red:'Redness',con_age:'Ageing',con_sens:'Sensitivity',
+    pr_btn:'Check My Products',
+    pr_empty_h:'Product checker',
+    pr_empty_p:'List what you use. AI checks if each product suits your skin and suggests better alternatives if needed.',
+    // Chat
+    chat_nm:'GroomAI Stylist',chat_st:'Online — ask me anything',
+    chat_hi:"Hi! I'm your personal GroomAI stylist.<br><br>Ask me anything about style, colours, grooming, skincare, outfits, or perfumes — I'm here every day to help you look and feel your best.",
+    chat_ph:'Ask about style, grooming, skincare…',
+    qc1:'My colours',qc2:'Beard advice',qc3:'Skincare',qc4:'Perfume',qc5:'Hairstyle',
+    qc1q:'What colours suit my skin tone?',qc2q:'What beard style suits my face shape?',
+    qc3q:'Best skincare routine for my skin type?',qc4q:'Suggest a perfume for me',qc5q:'What hairstyle suits my face shape?',
+    // Install banner
+    inst_title:'Install GroomAI',inst_sub:'Add to home screen',
+    inst_later:'Later',inst_install:'Install',
+    // Weather
+    wx_detecting:'Detecting weather...',wx_auto:'Auto-detected',
+    wx_unavail:'Weather unavailable',wx_denied:'Location access denied',wx_err:'Could not load weather',
+    wx_clear:'Clear',wx_partly:'Partly cloudy',wx_over:'Overcast',wx_rain:'Rainy',wx_snow:'Snowy',wx_storm:'Stormy',
+    // Profile bar
+    prof_title:'Your profile',
+    reset_confirm:'Reset profile and redo setup?',
+  },
+  de:{
+    // API overlay
+    api_free:'100% Kostenlos — Google Gemini API',
+    api_steps:'1. Gehe zu <strong>aistudio.google.com/app/apikey</strong><br>2. Mit Google-Konto anmelden<br>3. Auf <strong>API-Key erstellen</strong> tippen<br>4. Kopieren und einfügen',
+    api_label:'Dein kostenloser Gemini API-Key',
+    api_placeholder:'AIzaSy...',
+    api_err:'Key zu kurz — bitte vollständigen Key einfügen',
+    api_note:'Nur auf diesem Gerät gespeichert. Wird nur an Google Gemini API gesendet.',
+    api_save:'Speichern und GroomAI starten',
+    api_link:'aistudio.google.com öffnen',
+    // Welcome
+    w_title:'Dein persönlicher<br><em>Stil-Berater</em>',
+    w_tag:'Der Stylist, den nur Celebrities hatten — jetzt per KI, kostenlos für alle.',
+    wf1:'Farbpalette abgestimmt auf deinen Hautton und deine Kultur',
+    wf2:'Haar- und Bartberatung basierend auf deinen natürlichen Merkmalen',
+    wf3:'Deine vorhandene Garderobe zu deinem Look abstimmen',
+    wf4:'Hautpflege-Routine und Produktcheck',
+    wf5:'Tägliches Outfit basierend auf Stimmung und Wetter',
+    wf6:'Parfüm abgestimmt auf deinen Hautton und Stil',
+    w_btn:'Kostenlos starten',
+    w_note:'Dauert ca. 2 Minuten',
+    // Onboarding
+    ob_step:'Schritt',
+    ob_of:'von',
+    ob_back:'Zurück',
+    ob_continue:'Weiter',
+    ob_enter:'GroomAI starten',
+    ob1_q:'Lass uns mit deinem Foto beginnen',
+    ob1_sub:'Ein klares Frontfoto liefert die besten Ergebnisse für Hautton- und Gesichtsformerkennung.',
+    ob1_tap:'Tippe zum Hochladen',
+    ob1_fmt:'JPG oder PNG',
+    ob1_priv:'Dein Foto bleibt nur auf deinem Gerät',
+    ob2_q:'Woher kommst du?',
+    ob2_sub:'Dein Land hilft dabei, den Stil an deine Kultur und dein Klima anzupassen.',
+    ob2_ph:'Land suchen...',
+    ob2_sel:'Ausgewählt: ',
+    ob3_q:'Wie alt bist du?',
+    ob3_sub:'Alter ist Kontext — du bestimmst deinen Stil, nicht dein Alter.',
+    ob4_q:'Wie drückst du deinen Stil aus?',
+    ob4_sub:'Kein Urteil — alle Stile sind willkommen. Das leitet deine Empfehlungen.',
+    id_masc:'Maskulin',id_masc_d:'Klassischer Herrenstil — Hemden, Anzüge, gepflegtes Grooming',
+    id_fem:'Feminin',id_fem_d:'Damenstil — Kleider, sanfte Farben, Accessoires',
+    id_andro:'Androgyn',id_andro_d:'Fluid, grenzenlos, eine Mischung aus beidem',
+    id_ai:'KI entscheiden lassen',id_ai_d:'Basierend auf deinem Foto und natürlichen Merkmalen',
+    ob5_q:'Deine Stil-Persönlichkeit?',
+    ob5_sub:'Wähle alles, was sich nach dir anfühlt.',
+    m_classic:'Klassisch',m_street:'Streetwear',m_smart:'Smart Casual',m_mini:'Minimalistisch',
+    m_bold:'Mutig',m_eleg:'Elegant',m_sport:'Sportlich',m_trendy:'Trendy',
+    ob6_q:'Dein Hauttyp?',
+    ob6_sub:'Hilft bei Hautpflege- und Produktempfehlungen.',
+    sk_norm:'Normal',sk_dry:'Trocken',sk_oily:'Fettig',sk_comb:'Mischhaut',sk_sens:'Empfindlich',
+    ob6_prod:'Aktuelle Hautpflegeprodukte? (optional)',
+    ob6_ph:'z.B. Nivea Feuchtigkeitscreme, Cetaphil Reiniger... oder leer lassen',
+    ob7_q:'Fast fertig! Dein Budget?',
+    ob7_sub:'Hilft uns, passende Produkte und Marken zu empfehlen.',
+    bg_bud:'Budgetfreundlich',bg_bud_d:'Guter Stil ohne viel auszugeben',
+    bg_mid:'Mittelklasse',bg_mid_d:'Qualität zu vernünftigen Preisen',
+    bg_lux:'Luxus',bg_lux_d:'Premium-Marken, hochwertige Produkte',
+    bg_mix:'Gemischt',bg_mix_d:'Bei manchen sparen, bei anderen investieren',
+    // Nav
+    nav_analyze:'🔍 Analyse',nav_wardrobe:'👗 Garderobe',nav_daily:'🌤 Heute',
+    nav_products:'🧴 Produkte',nav_chat:'💬 Chat',
+    connected:'Verbunden',api_key_btn:'API-Key',
+    // Analyze
+    an_photo:'Dein Foto',an_photo_s:'Lade ein klares Frontfoto hoch',
+    an_tap:'Tippen zum Hochladen',
+    an_ctx:'Zusätzlicher Kontext (optional)',an_ctx_ph:'z.B. Vorstellungsgespräch, Hochzeit, Date…',
+    an_btn:'Meinen Look analysieren',
+    an_empty_h:'Dein Stilprofil wartet',
+    an_empty_p:'Lade dein Foto hoch und tippe auf Analysieren für einen vollständigen Stilführer.',
+    // Wardrobe
+    wa_face:'Gesichtsfoto',wa_face_s:'Für Hautton-Abstimmung',
+    wa_tap:'Gesichtsfoto hochladen',
+    wa_clothes:'Deine Kleidung',wa_clothes_s:'Bis zu 9 Kleidungsfotos hochladen',
+    wa_occ:'Anlass',
+    wa_occ1:'Alltag',wa_occ2:'Arbeit / Büro',wa_occ3:'Date-Nacht',wa_occ4:'Formeller Anlass',wa_occ5:'Sport',
+    wa_btn:'Meine Garderobe abstimmen',
+    wa_empty_h:'Deine Garderobe hochladen',
+    wa_empty_p:'Kleidungsfotos hochladen. KI bewertet jeden Artikel nach Passgenauigkeit zu deinen Merkmalen.',
+    // Daily
+    da_title:'Heutiges Outfit',da_title_s:'Basierend auf Stimmung und Wetter',
+    da_mood:'Wie fühlst du dich heute?',
+    da_occ_lbl:'Heutiger Anlass',
+    da_occ1:'Alltag',da_occ2:'Arbeit / Uni',da_occ3:'Soziales Event',
+    da_occ4:'Date',da_occ5:'Formeller Anlass',da_occ6:'Zuhause bleiben',
+    da_btn:'Heutiges Outfit holen',
+    da_empty_h:'Was heute anziehen',
+    da_empty_p:'Wähle deine Stimmung und den Anlass. Wir prüfen das Wetter und schlagen das perfekte Outfit vor.',
+    mood_conf:'Selbstbewusst',mood_relax:'Entspannt',mood_prof:'Professionell',mood_rom:'Romantisch',
+    mood_ener:'Energiegeladen',mood_low:'Entspannt',mood_cre:'Kreativ',mood_bold:'Mutig',
+    // Products
+    pr_title:'Produktcheck',pr_title_s:'Sind deine Produkte richtig für deine Haut?',
+    pr_lbl:'Deine aktuellen Produkte',
+    pr_ph:'Liste deine Hautpflege- oder Pflegeprodukte:\n- Nivea Feuchtigkeitscreme\n- Head & Shoulders\n- Cetaphil Reiniger\n(oder leer lassen für Empfehlungen)',
+    pr_con:'Aktuelle Hautprobleme',
+    con_acne:'Akne',con_dry:'Trockenheit',con_oil:'Fettigkeit',con_dark:'Dunkle Flecken',
+    con_red:'Rötungen',con_age:'Hautalterung',con_sens:'Empfindlichkeit',
+    pr_btn:'Meine Produkte prüfen',
+    pr_empty_h:'Produktcheck',
+    pr_empty_p:'Liste was du verwendest. KI prüft ob jedes Produkt zu deiner Haut passt und schlägt Alternativen vor.',
+    // Chat
+    chat_nm:'GroomAI Stylist',chat_st:'Online — frag mich alles',
+    chat_hi:'Hallo! Ich bin dein persönlicher GroomAI Stylist.<br><br>Frag mich alles über Stil, Farben, Grooming, Hautpflege, Outfits oder Parfüm — ich bin täglich für dich da.',
+    chat_ph:'Frag nach Stil, Grooming, Hautpflege…',
+    qc1:'Meine Farben',qc2:'Bartberatung',qc3:'Hautpflege',qc4:'Parfüm',qc5:'Frisur',
+    qc1q:'Welche Farben passen zu meinem Hautton?',qc2q:'Welcher Bartstil passt zu meiner Gesichtsform?',
+    qc3q:'Beste Hautpflege-Routine für meinen Hauttyp?',qc4q:'Empfehle mir ein Parfüm',qc5q:'Welche Frisur passt zu meiner Gesichtsform?',
+    // Install banner
+    inst_title:'GroomAI installieren',inst_sub:'Zum Startbildschirm hinzufügen',
+    inst_later:'Später',inst_install:'Installieren',
+    // Weather
+    wx_detecting:'Wetter wird erkannt...',wx_auto:'Automatisch erkannt',
+    wx_unavail:'Wetter nicht verfügbar',wx_denied:'Standortzugriff verweigert',wx_err:'Wetter konnte nicht geladen werden',
+    wx_clear:'Klar',wx_partly:'Teilweise bewölkt',wx_over:'Bedeckt',wx_rain:'Regnerisch',wx_snow:'Schneefall',wx_storm:'Stürmisch',
+    // Profile bar
+    prof_title:'Dein Profil',
+    reset_confirm:'Profil zurücksetzen und neu einrichten?',
+  }
+};
+
+function t(key){return T[lang][key]||T.en[key]||key;}
+
+function toggleLang(){
+  lang=lang==='en'?'de':'en';
+  document.getElementById('lang-tog').textContent=lang==='en'?'DE':'EN';
+  localStorage.setItem('gai_lang',lang);
+  applyLang();
+}
+
+function applyLang(){
+  const L=T[lang];
+  // API overlay
+  document.querySelector('.api-ti').textContent=L.api_free;
+  document.querySelector('.api-bd').innerHTML=L.api_steps;
+  document.querySelectorAll('.fl')[0].textContent=L.api_label;
+  document.getElementById('ak-in').placeholder=L.api_placeholder;
+  document.getElementById('ak-er').textContent=L.api_err;
+  document.querySelector('.api-nt').textContent=L.api_note;
+  document.getElementById('ak-btn').textContent=L.api_save;
+  document.querySelector('.ov-box a').textContent=L.api_link;
+  // Welcome screen
+  document.querySelector('.w-title').innerHTML=L.w_title;
+  document.querySelector('.w-tag').textContent=L.w_tag;
+  const wfTxts=document.querySelectorAll('.wf-txt');
+  wfTxts[0].textContent=L.wf1;wfTxts[1].textContent=L.wf2;wfTxts[2].textContent=L.wf3;
+  wfTxts[3].textContent=L.wf4;wfTxts[4].textContent=L.wf5;wfTxts[5].textContent=L.wf6;
+  document.querySelector('.btn-gold').textContent=L.w_btn;
+  document.querySelector('.w-note').textContent=L.w_note;
+  // Onboarding steps
+  document.querySelector('#ob-1 .ob-q').textContent=L.ob1_q;
+  document.querySelector('#ob-1 .ob-sub').textContent=L.ob1_sub;
+  document.querySelector('#ob-ph div:first-child+div').textContent=L.ob1_tap;
+  document.querySelector('#ob-1 [style*="font-size:11px"]').textContent=L.ob1_priv;
+  document.querySelector('#ob-2 .ob-q').textContent=L.ob2_q;
+  document.querySelector('#ob-2 .ob-sub').textContent=L.ob2_sub;
+  document.getElementById('c-inp').placeholder=L.ob2_ph;
+  document.querySelector('#ob-3 .ob-q').textContent=L.ob3_q;
+  document.querySelector('#ob-3 .ob-sub').textContent=L.ob3_sub;
+  document.querySelector('#ob-4 .ob-q').textContent=L.ob4_q;
+  document.querySelector('#ob-4 .ob-sub').textContent=L.ob4_sub;
+  // Style identity tiles
+  const tiles4=document.querySelectorAll('#ob-4 .tile');
+  tiles4[0].querySelector('.tile-lbl').textContent=L.id_masc;tiles4[0].querySelector('.tile-desc').textContent=L.id_masc_d;
+  tiles4[1].querySelector('.tile-lbl').textContent=L.id_fem;tiles4[1].querySelector('.tile-desc').textContent=L.id_fem_d;
+  tiles4[2].querySelector('.tile-lbl').textContent=L.id_andro;tiles4[2].querySelector('.tile-desc').textContent=L.id_andro_d;
+  tiles4[3].querySelector('.tile-lbl').textContent=L.id_ai;tiles4[3].querySelector('.tile-desc').textContent=L.id_ai_d;
+  // Style moods
+  document.querySelector('#ob-5 .ob-q').textContent=L.ob5_q;
+  document.querySelector('#ob-5 .ob-sub').textContent=L.ob5_sub;
+  const mChips=document.querySelectorAll('#mood-c .chip');
+  [L.m_classic,L.m_street,L.m_smart,L.m_mini,L.m_bold,L.m_eleg,L.m_sport,L.m_trendy].forEach((txt,i)=>{if(mChips[i])mChips[i].textContent=txt;});
+  // Skin type
+  document.querySelector('#ob-6 .ob-q').textContent=L.ob6_q;
+  document.querySelector('#ob-6 .ob-sub').textContent=L.ob6_sub;
+  const skChips=document.querySelectorAll('#skin-c .chip');
+  [L.sk_norm,L.sk_dry,L.sk_oily,L.sk_comb,L.sk_sens].forEach((txt,i)=>{if(skChips[i])skChips[i].textContent=txt;});
+  const ob6Subs=document.querySelectorAll('#ob-6 .ob-sub');
+  if(ob6Subs[1])ob6Subs[1].textContent=L.ob6_prod;
+  document.getElementById('ep-txt').placeholder=L.ob6_ph;
+  // Budget
+  document.querySelector('#ob-7 .ob-q').textContent=L.ob7_q;
+  document.querySelector('#ob-7 .ob-sub').textContent=L.ob7_sub;
+  const tiles7=document.querySelectorAll('#ob-7 .tile');
+  tiles7[0].querySelector('.tile-lbl').textContent=L.bg_bud;tiles7[0].querySelector('.tile-desc').textContent=L.bg_bud_d;
+  tiles7[1].querySelector('.tile-lbl').textContent=L.bg_mid;tiles7[1].querySelector('.tile-desc').textContent=L.bg_mid_d;
+  tiles7[2].querySelector('.tile-lbl').textContent=L.bg_lux;tiles7[2].querySelector('.tile-desc').textContent=L.bg_lux_d;
+  tiles7[3].querySelector('.tile-lbl').textContent=L.bg_mix;tiles7[3].querySelector('.tile-desc').textContent=L.bg_mix_d;
+  // Nav buttons
+  const ntabs=document.querySelectorAll('.ntab');
+  [L.nav_analyze,L.nav_wardrobe,L.nav_daily,L.nav_products,L.nav_chat].forEach((txt,i)=>{if(ntabs[i])ntabs[i].textContent=txt;});
+  document.getElementById('k-st').textContent=L.connected;
+  document.querySelector('.key-btn').textContent=L.api_key_btn;
+  // Analyze tab
+  document.querySelector('#p-analyze .pt').textContent=L.an_photo;
+  document.querySelector('#p-analyze .ps').textContent=L.an_photo_s;
+  document.querySelector('#a-ph div:last-child').textContent=L.an_tap;
+  document.querySelector('#p-analyze label.fl').textContent=L.an_ctx;
+  document.getElementById('a-notes').placeholder=L.an_ctx_ph;
+  document.getElementById('a-btn').textContent=L.an_btn;
+  document.querySelector('#a-res .cs h2').textContent=L.an_empty_h;
+  document.querySelector('#a-res .cs p').textContent=L.an_empty_p;
+  // Wardrobe tab
+  const wapts=document.querySelectorAll('#p-wardrobe .pt');
+  const waps=document.querySelectorAll('#p-wardrobe .ps');
+  if(wapts[0])wapts[0].textContent=L.wa_face;
+  if(waps[0])waps[0].textContent=L.wa_face_s;
+  if(wapts[1])wapts[1].textContent=L.wa_clothes;
+  if(waps[1])waps[1].textContent=L.wa_clothes_s;
+  document.querySelector('#p-wardrobe label.fl').textContent=L.wa_occ;
+  const wOc=document.getElementById('w-oc');
+  if(wOc){const opts=wOc.options;opts[0].text=L.wa_occ1;opts[1].text=L.wa_occ2;opts[2].text=L.wa_occ3;opts[3].text=L.wa_occ4;opts[4].text=L.wa_occ5;}
+  document.getElementById('w-btn').textContent=L.wa_btn;
+  document.querySelector('#w-res .cs h2').textContent=L.wa_empty_h;
+  document.querySelector('#w-res .cs p').textContent=L.wa_empty_p;
+  // Daily tab
+  document.querySelector('#p-daily .pt').textContent=L.da_title;
+  document.querySelector('#p-daily .ps').textContent=L.da_title_s;
+  document.querySelector('#p-daily label.fl').textContent=L.da_mood;
+  const dMoods=document.querySelectorAll('#mood-t .sch');
+  [L.mood_conf,L.mood_relax,L.mood_prof,L.mood_rom,L.mood_ener,L.mood_low,L.mood_cre,L.mood_bold].forEach((txt,i)=>{if(dMoods[i])dMoods[i].textContent=txt;});
+  const daLabels=document.querySelectorAll('#p-daily label.fl');
+  if(daLabels[1])daLabels[1].textContent=L.da_occ_lbl;
+  const dOc=document.getElementById('d-oc');
+  if(dOc){const opts=dOc.options;opts[0].text=L.da_occ1;opts[1].text=L.da_occ2;opts[2].text=L.da_occ3;opts[3].text=L.da_occ4;opts[4].text=L.da_occ5;opts[5].text=L.da_occ6;}
+  document.getElementById('d-btn').textContent=L.da_btn;
+  document.querySelector('#d-res .cs h2').textContent=L.da_empty_h;
+  document.querySelector('#d-res .cs p').textContent=L.da_empty_p;
+  // Products tab
+  document.querySelector('#p-products .pt').textContent=L.pr_title;
+  document.querySelector('#p-products .ps').textContent=L.pr_title_s;
+  document.querySelector('#p-products label.fl').textContent=L.pr_lbl;
+  document.getElementById('up-txt').placeholder=L.pr_ph;
+  const prLabels=document.querySelectorAll('#p-products label.fl');
+  if(prLabels[1])prLabels[1].textContent=L.pr_con;
+  const conChips=document.querySelectorAll('#con-c .sch');
+  [L.con_acne,L.con_dry,L.con_oil,L.con_dark,L.con_red,L.con_age,L.con_sens].forEach((txt,i)=>{if(conChips[i])conChips[i].textContent=txt;});
+  document.getElementById('pr-btn').textContent=L.pr_btn;
+  document.querySelector('#pr-res .cs h2').textContent=L.pr_empty_h;
+  document.querySelector('#pr-res .cs p').textContent=L.pr_empty_p;
+  // Chat tab
+  document.querySelector('.chat-nm').textContent=L.chat_nm;
+  document.querySelector('.chat-st').textContent=L.chat_st;
+  document.getElementById('c-in').placeholder=L.chat_ph;
+  const qchs=document.querySelectorAll('.qch');
+  [L.qc1,L.qc2,L.qc3,L.qc4,L.qc5].forEach((txt,i)=>{if(qchs[i])qchs[i].textContent=txt;});
+  qchs[0]&&(qchs[0].onclick=()=>sq(L.qc1q));
+  qchs[1]&&(qchs[1].onclick=()=>sq(L.qc2q));
+  qchs[2]&&(qchs[2].onclick=()=>sq(L.qc3q));
+  qchs[3]&&(qchs[3].onclick=()=>sq(L.qc4q));
+  qchs[4]&&(qchs[4].onclick=()=>sq(L.qc5q));
+  // Install banner
+  document.querySelector('#ib div div:first-child').textContent=L.inst_title;
+  document.querySelector('#ib div div:last-child').textContent=L.inst_sub;
+  const ibBtns=document.querySelectorAll('.ib-b');
+  if(ibBtns[0])ibBtns[0].textContent=L.inst_later;
+  if(ibBtns[1])ibBtns[1].textContent=L.inst_install;
+  // Onboarding nav buttons (if visible)
+  const nx=document.getElementById('ob-nx');
+  if(nx)nx.textContent=step===TOTAL?L.ob_enter:L.ob_continue;
+  document.getElementById('ob-bk').textContent=L.ob_back;
+  // Step counter
+  document.getElementById('ob-lbl').textContent=L.ob_step+' '+step+' '+L.ob_of+' '+TOTAL;
+}
+
+// ── PWA ────────────────────────────────────────────────
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dP=e;document.getElementById('ib').style.display='flex';});
+function instApp(){if(!dP)return;dP.prompt();dP.userChoice.then(()=>{dP=null;document.getElementById('ib').style.display='none';});}
+window.addEventListener('appinstalled',()=>{document.getElementById('ib').style.display='none';});
+
+// ── INIT ───────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  renderWG();
+  const key=gKey();
+  if(key){document.getElementById('api-ov').style.display='none';document.getElementById('k-st').style.display='block';}
+  const sv=loadP();
+  if(sv&&sv.photo&&sv.country)Object.assign(P,sv);
+  // Load saved language
+  const savedLang=localStorage.getItem('gai_lang');
+  if(savedLang&&(savedLang==='en'||savedLang==='de')){
+    lang=savedLang;
+    document.getElementById('lang-tog').textContent=lang==='en'?'DE':'EN';
+  }
+  applyLang();
+  show('sw');
+  getWx();
+});
+</script>
+</body>
+</html>

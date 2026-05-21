@@ -43,6 +43,8 @@
   input,select,textarea{background:#2C2C2E!important;color:#F2F2F7!important;border-color:#3A3A3C!important;}
   .api-info{background:#2C2C2E!important;}
   .tile,.chip,.sch,.pill{background:#2C2C2E!important;border-color:#3A3A3C!important;color:#F2F2F7!important;}
+  .tile.active,.chip.active,.sch.active{background:var(--gold)!important;border-color:var(--gold)!important;color:#111!important;box-shadow:0 0 0 2px var(--gold)!important;}
+  .tile.active .tile-desc{color:rgba(17,17,17,.7)!important;}
   .ob-hd,.app-hd,.app-nav{background:rgba(28,28,30,.92)!important;border-color:#3A3A3C!important;}
   .btn-gold{background:#E8B86D!important;color:#111!important;}
   .btn-next,.btn-p{background:#F2F2F7!important;color:#111!important;}
@@ -85,14 +87,14 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--char);min-
 .tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .tile{border:.5px solid var(--border);border-radius:var(--r);padding:.9rem;cursor:pointer;transition:all .2s;background:var(--warm);text-align:center}
 .tile:hover{border-color:var(--gold)}
-.tile.active{background:var(--char);border-color:var(--char);color:var(--cream)}
+.tile.active{background:var(--gold);border-color:var(--gold);color:#111;box-shadow:0 0 0 2px var(--gold)}
 .tile-icon{font-size:1.8rem;margin-bottom:.35rem;display:block}
 .tile-lbl{font-size:13px;font-weight:500}
 .tile-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35}
-.tile.active .tile-desc{color:rgba(253,251,248,.55)}
+.tile.active .tile-desc{color:rgba(17,17,17,.7)}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{padding:7px 14px;border:.5px solid var(--border);border-radius:100px;font-size:13px;cursor:pointer;transition:all .15s;background:var(--warm);color:var(--char);user-select:none}
-.chip.active{background:var(--char);color:var(--cream);border-color:var(--char)}
+.chip.active{background:var(--gold);color:#111;border-color:var(--gold);box-shadow:0 0 0 2px var(--gold);font-weight:600}
 .csearch{width:100%;padding:.7rem .9rem;border:.5px solid var(--border);border-radius:var(--rs);font-family:'Outfit',sans-serif;font-size:16px;background:var(--warm);color:var(--char);outline:none;transition:border-color .2s}
 .csearch:focus{border-color:var(--gold)}
 .clist{max-height:190px;overflow-y:auto;border:.5px solid var(--border);border-radius:var(--rs);background:var(--warm);display:none}
@@ -141,7 +143,7 @@ select,.si{width:100%;padding:.65rem .85rem;border:1px solid var(--border);borde
 select:focus,.si:focus{border-color:var(--gold)}
 .sc{display:flex;flex-wrap:wrap;gap:6px}
 .sch{padding:5px 10px;border:.5px solid var(--border);border-radius:100px;font-size:12px;cursor:pointer;transition:all .15s;background:var(--cream);color:var(--char);user-select:none}
-.sch.active{background:var(--char);color:var(--cream);border-color:var(--char)}
+.sch.active{background:var(--gold);color:#111;border-color:var(--gold);box-shadow:0 0 0 2px var(--gold);font-weight:600}
 .ub{border:1px dashed var(--border);border-radius:var(--r);padding:1.15rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--cream);position:relative;overflow:hidden}
 .ub:hover{border-color:var(--gold);background:#faf5ed}
 .ub input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -319,29 +321,30 @@ input,select,textarea{font-size:16px!important}
       <div class="ob-sub">A clear front-facing photo gives the best results for skin tone and face shape detection.</div>
       <!-- Camera guide overlay -->
       <div id="cam-guide" style="display:none;position:fixed;inset:0;background:#000;z-index:999;flex-direction:column;align-items:center;justify-content:center">
-        <div style="position:relative;width:100%;max-width:400px;aspect-ratio:3/4;overflow:hidden">
-          <video id="cam-vid" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover"></video>
-          <!-- Face + Half Body guide frame -->
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
-            <svg style="position:absolute;width:75%;height:90%;left:12.5%;top:5%" viewBox="0 0 200 280" fill="none">
-              <!-- Face oval guide -->
-              <ellipse cx="100" cy="72" rx="52" ry="62" stroke="rgba(255,255,255,.5)" stroke-width="1.5" stroke-dasharray="6 4"/>
-              <!-- Face label -->
-              <text x="100" y="18" text-anchor="middle" fill="rgba(255,255,255,.7)" font-size="10" font-family="sans-serif">FACE</text>
+        <div style="position:relative;width:100%;max-width:420px;aspect-ratio:3/4;overflow:hidden">
+          <video id="cam-vid" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;object-position:center top"></video>
+          <!-- Face + Body guide frame -->
+          <div style="position:absolute;inset:0;pointer-events:none">
+            <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 100 134" preserveAspectRatio="xMidYMid meet" fill="none">
+              <!-- FACE oval - positioned where face actually appears in selfie camera -->
+              <ellipse cx="50" cy="42" rx="32" ry="38" stroke="rgba(255,255,255,.8)" stroke-width="1" stroke-dasharray="4 2.5"/>
+              <!-- FACE label -->
+              <text x="50" y="8" text-anchor="middle" fill="#C9A96E" font-size="5" font-family="sans-serif" font-weight="700" letter-spacing="1.5">FACE</text>
               <!-- Neck -->
-              <line x1="85" y1="132" x2="85" y2="148" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
-              <line x1="115" y1="132" x2="115" y2="148" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
-              <!-- Shoulder line -->
-              <path d="M40 158 Q100 148 160 158" stroke="rgba(255,255,255,.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
-              <!-- Body frame -->
-              <rect x="42" y="158" width="116" height="100" rx="4" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-dasharray="6 4" fill="none"/>
-              <!-- Body label -->
-              <text x="100" y="214" text-anchor="middle" fill="rgba(255,255,255,.6)" font-size="9" font-family="sans-serif">UPPER BODY</text>
-              <!-- Gold corner brackets - outer frame -->
-              <path d="M15 40 L15 15 L40 15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/>
-              <path d="M185 40 L185 15 L160 15" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/>
-              <path d="M15 240 L15 265 L40 265" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/>
-              <path d="M185 240 L185 265 L160 265" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="44" y1="79" x2="44" y2="88" stroke="rgba(255,255,255,.4)" stroke-width=".7"/>
+              <line x1="56" y1="79" x2="56" y2="88" stroke="rgba(255,255,255,.4)" stroke-width=".7"/>
+              <!-- Shoulders -->
+              <path d="M15 94 Q50 86 85 94" stroke="rgba(255,255,255,.6)" stroke-width="1" stroke-dasharray="3 2"/>
+              <!-- Upper body box -->
+              <rect x="16" y="94" width="68" height="34" rx="3" stroke="rgba(255,255,255,.5)" stroke-width=".9" stroke-dasharray="4 2.5"/>
+              <!-- Upper body label -->
+              <text x="50" y="114" text-anchor="middle" fill="#C9A96E" font-size="4.5" font-family="sans-serif" font-weight="700" letter-spacing="1">UPPER BODY</text>
+              <!-- Gold corners - TOP -->
+              <path d="M6 25 L6 6 L25 6" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/>
+              <path d="M94 25 L94 6 L75 6" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/>
+              <!-- Gold corners - BOTTOM -->
+              <path d="M6 109 L6 128 L25 128" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/>
+              <path d="M94 109 L94 128 L75 128" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
           <!-- Guide text -->
@@ -702,16 +705,42 @@ async function genImg(prompt){
 async function uploadToFal(base64Data, mimeType='image/jpeg'){
   const key=gFalKey();if(!key)return null;
   try{
-    const blob=await fetch('data:'+mimeType+';base64,'+base64Data).then(r=>r.blob());
+    // Convert base64 to blob
+    const byteChars=atob(base64Data);
+    const byteArr=new Uint8Array(byteChars.length);
+    for(let i=0;i<byteChars.length;i++)byteArr[i]=byteChars.charCodeAt(i);
+    const blob=new Blob([byteArr],{type:mimeType});
+
+    // Step 1: Initiate upload - get presigned URL
+    const initRes=await fetch('https://rest.fal.run/storage/upload/initiate',{
+      method:'POST',
+      headers:{'Authorization':'Key '+key,'Content-Type':'application/json'},
+      body:JSON.stringify({file_name:'photo.jpg',content_type:mimeType})
+    });
+    const init=await initRes.json();
+    console.log('Fal init response:',init);
+
+    if(init?.upload_url){
+      // Step 2: Upload to presigned URL
+      await fetch(init.upload_url,{
+        method:'PUT',
+        headers:{'Content-Type':mimeType},
+        body:blob
+      });
+      return init?.file_url||init?.url||null;
+    }
+
+    // Fallback: try direct upload
     const formData=new FormData();
     formData.append('file',blob,'photo.jpg');
-    const res=await fetch('https://fal.run/fal-ai/storage/upload/file',{
+    const res=await fetch('https://rest.fal.run/storage/upload',{
       method:'POST',
       headers:{'Authorization':'Key '+key},
       body:formData
     });
     const d=await res.json();
-    return d?.url||null;
+    console.log('Fal upload response:',d);
+    return d?.url||d?.file_url||null;
   }catch(e){console.log('Upload error:',e);return null;}
 }
 
@@ -1465,16 +1494,18 @@ function renderA(r){
   // Upload user's photo first (needed for try-on)
   let userPhotoUrl=null;
   if(gFalKey()&&P.photo){
-    // Show try-on loading spinner on all outfit cards
-    (r.outfit_ideas||[]).forEach((_,idx)=>{
-      const loading=document.getElementById('tryon-loading-'+idx);
-      if(loading){
-        const txt=loading.querySelector('div:last-child');
-        if(txt)txt.textContent='⏳ Uploading your photo...';
-      }
-    });
+    const updateStatus=(msg)=>{
+      (r.outfit_ideas||[]).forEach((_,idx)=>{
+        const el=document.querySelector(`#tryon-loading-${idx} div[style*="font-size:11px"]`);
+        if(el)el.innerHTML=msg;
+      });
+    };
+    updateStatus('⏳ Uploading your photo...');
     userPhotoUrl=await uploadToFal(P.photo,'image/jpeg');
-    console.log('User photo URL:',userPhotoUrl);
+    console.log('User photo URL result:',userPhotoUrl);
+    if(!userPhotoUrl){
+      updateStatus('⚠️ Upload failed — check fal.ai key<br><span style="font-size:10px;opacity:.7">Showing colour preview only</span>');
+    }
   }
 
   // ── Virtual try-on for each outfit ──────────────────────

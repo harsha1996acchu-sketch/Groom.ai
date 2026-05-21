@@ -687,32 +687,25 @@ async function falPost(endpoint, body){
   return null;
 }
 
-// ── IMAGEN 3 via Gemini API — photorealistic image generation ──
-// Same Gemini key the user already has. Returns base64 data URL.
-async function genImg(prompt){
-  const key=gKey();if(!key)return null;
-  // Try Imagen 3 first (best quality), fall back to Imagen 3 fast
-  const IMAGEN_MODELS=['imagen-3.0-generate-002','imagen-3.0-fast-generate-001'];
-  for(const model of IMAGEN_MODELS){
-    try{
-      const res=await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:predict?key=${key}`,
-        {method:'POST',
-         headers:{'Content-Type':'application/json'},
-         body:JSON.stringify({
-           instances:[{prompt}],
-           parameters:{sampleCount:1,aspectRatio:'3:4',safetySetting:'block_only_high',personGeneration:'allow_adult'}
-         })}
-      );
-      const d=await res.json();
-      if(d.error){console.log('[Imagen] model',model,'error:',d.error.message);continue;}
-      const b64=d?.predictions?.[0]?.bytesBase64Encoded;
-      const mime=d?.predictions?.[0]?.mimeType||'image/png';
-      if(b64)return `data:${mime};base64,${b64}`;
-    }catch(e){console.log('[Imagen] model',model,'failed:',e.message);}
-  }
-  console.log('[Imagen] ❌ All models failed');
-  return null;
+// ── IMAGE GENERATION via Pollinations.ai ──────────────────
+// Free, no API key, no CORS issues, photorealistic Flux model
+// Returns a URL that <img> can use directly
+let _imgSeed=Date.now();
+async function genImg(prompt, opts={}){
+  const {width=512,height=768,square=false}=opts;
+  const w=square?512:width, h=square?512:height;
+  const seed=(_imgSeed++)%99999;
+  const encoded=encodeURIComponent(prompt);
+  const url=`https://image.pollinations.ai/prompt/${encoded}?width=${w}&height=${h}&model=flux&nologo=true&enhance=true&seed=${seed}`;
+  // Pre-load to detect failures
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    const timer=setTimeout(()=>{img.src='';resolve(null);},30000); // 30s timeout
+    img.onload=()=>{clearTimeout(timer);resolve(url);};
+    img.onerror=()=>{clearTimeout(timer);resolve(null);};
+    img.src=url;
+  });
 }
 
 // Upload base64 image to fal.ai storage and get URL
@@ -1259,94 +1252,92 @@ function renderA(r){
     </svg>`;
   }
 
-  // Extract one item from comma-split outfit text
+  // Helper: extract one piece from comma-split outfit string
   function getOItem(text,keys){
     const parts=text.split(/,(?![^()]*\))/);
     for(const p of parts){if(keys.some(k=>p.toLowerCase().includes(k)))return p.trim();}
     return null;
   }
-
-  // Spinner placeholder for image loading
-  function imgPlaceholder(label){
-    return `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#f7f4ef">
-      <div style="width:22px;height:22px;border:2px solid #ddd;border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite"></div>
-      <div style="font-size:9px;color:#aaa;font-weight:500">${label}</div>
+  // Spinner HTML for loading slots
+  function spinSlot(label){
+    return `<div style="width:100%;height:100%;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:#F9F6F1">
+      <div style="width:18px;height:18px;border:2px solid #e0d9d0;border-top-color:var(--gold);border-radius:50%;animation:spin .85s linear infinite"></div>
+      <div style="font-size:9px;color:#bbb;font-weight:500;letter-spacing:.04em">${label}</div>
     </div>`;
   }
 
   const outfitCards=(r.outfit_ideas||[]).map((o,idx)=>{
     const{hasJacket,jacketC,shirtC,pantC,shoeC}=parseOutfit(o.outfit);
-    const shirtDesc=getOItem(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley'])||o.outfit.split(',')[0]||'Shirt';
-    const pantDesc =getOItem(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt'])||o.outfit.split(',')[1]||'Trousers';
-    const shoeDesc =getOItem(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer'])||o.outfit.split(',')[2]||'Shoes';
+    const shirtDesc=getOItem(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley','button'])||o.outfit.split(',')[0]||'Shirt';
+    const pantDesc =getOItem(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt','denim'])||o.outfit.split(',')[1]||'Trousers';
+    const shoeDesc =getOItem(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer','leather shoe'])||o.outfit.split(',')[2]||'Shoes';
     const jacketDesc=getOItem(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']);
 
     return `<div style="border:1.5px solid ${idx===0?'var(--gold)':'var(--border)'};border-radius:20px;margin-bottom:20px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow-lg)">
 
-      <!-- OCCASION HEADER — dark bar like reference -->
-      <div style="background:${idx===0?'#1a1a1a':'var(--surface2)'};padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+      <!-- HEADER BAR -->
+      <div style="background:${idx===0?'#1C1C1C':'var(--surface2)'};padding:13px 18px;display:flex;align-items:center;justify-content:space-between">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:${idx===0?'var(--gold)':'var(--muted)'}">${o.occasion}</div>
         ${idx===0?'<div style="font-size:11px;font-weight:600;color:var(--gold)">★ Best match</div>':''}
       </div>
 
-      <!-- MAIN GRID: Left = full-body photo, Right = product photos -->
+      <!-- BODY: left = full model photo, right = product slots -->
       <div style="display:grid;grid-template-columns:48% 52%;border-bottom:1px solid var(--border)">
 
-        <!-- LEFT: Full-body model photo — generated by Imagen 3 -->
-        <div style="position:relative;min-height:360px;background:#f7f4ef;border-right:1px solid var(--border);overflow:hidden">
-          <div id="model-ph-${idx}" style="position:absolute;inset:0">${imgPlaceholder('Generating look...')}</div>
-          <img id="model-img-${idx}" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top" alt="Outfit look">
+        <!-- LEFT: full-body photo -->
+        <div style="position:relative;min-height:380px;overflow:hidden;border-right:1px solid var(--border);background:#F9F6F1;display:flex;align-items:stretch">
+          <div id="mph-${idx}" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#F9F6F1">
+            <div style="width:24px;height:24px;border:2.5px solid #ddd;border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite"></div>
+            <div style="font-size:10px;color:#bbb;font-weight:500">Generating look...</div>
+          </div>
+          <img id="mimg-${idx}" style="display:none;width:100%;height:100%;object-fit:cover;object-position:top center;position:absolute;inset:0" alt="outfit">
         </div>
 
-        <!-- RIGHT: Product photos stacked (shirt / pant / shoes / jacket) -->
+        <!-- RIGHT: stacked product photo slots -->
         <div style="display:flex;flex-direction:column">
 
-          <!-- SHIRT -->
-          <div style="display:flex;flex:1;min-height:90px;border-bottom:1px solid var(--border)">
-            <div id="ps-img-${idx}" style="width:46%;border-right:1px solid var(--border);overflow:hidden;flex-shrink:0">${imgPlaceholder('Shirt')}</div>
-            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px">
-              <div style="font-size:9px;font-weight:700;letter-spacing:.13em;color:#111;border-bottom:2px solid ${shirtC};padding-bottom:3px;width:fit-content">SHIRT</div>
-              <div style="font-size:11px;color:var(--char);line-height:1.45">${shirtDesc}</div>
+          <div style="display:flex;min-height:95px;border-bottom:1px solid var(--border)">
+            <div id="si-${idx}" style="width:45%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${spinSlot('Shirt')}</div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.13em;color:#1a1a1a;border-bottom:2.5px solid ${shirtC};padding-bottom:3px;width:fit-content">SHIRT</div>
+              <div style="font-size:11px;color:var(--char);line-height:1.5">${shirtDesc}</div>
             </div>
           </div>
 
-          <!-- PANT -->
-          <div style="display:flex;flex:1;min-height:90px;border-bottom:1px solid var(--border)">
-            <div id="pp-img-${idx}" style="width:46%;border-right:1px solid var(--border);overflow:hidden;flex-shrink:0">${imgPlaceholder('Pant')}</div>
-            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px">
-              <div style="font-size:9px;font-weight:700;letter-spacing:.13em;color:#111;border-bottom:2px solid ${pantC};padding-bottom:3px;width:fit-content">PANT</div>
-              <div style="font-size:11px;color:var(--char);line-height:1.45">${pantDesc}</div>
+          <div style="display:flex;min-height:95px;border-bottom:1px solid var(--border)">
+            <div id="pi-${idx}" style="width:45%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${spinSlot('Pant')}</div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.13em;color:#1a1a1a;border-bottom:2.5px solid ${pantC};padding-bottom:3px;width:fit-content">PANT</div>
+              <div style="font-size:11px;color:var(--char);line-height:1.5">${pantDesc}</div>
             </div>
           </div>
 
-          <!-- SHOES -->
-          <div style="display:flex;flex:1;min-height:90px;${hasJacket&&jacketDesc?'border-bottom:1px solid var(--border);':''}">
-            <div id="psh-img-${idx}" style="width:46%;border-right:1px solid var(--border);overflow:hidden;flex-shrink:0">${imgPlaceholder('Shoes')}</div>
-            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px">
-              <div style="font-size:9px;font-weight:700;letter-spacing:.13em;color:#111;border-bottom:2px solid ${shoeC};padding-bottom:3px;width:fit-content">SHOES</div>
-              <div style="font-size:11px;color:var(--char);line-height:1.45">${shoeDesc}</div>
+          <div style="display:flex;min-height:95px;${hasJacket&&jacketDesc?'border-bottom:1px solid var(--border);':''}">
+            <div id="shi-${idx}" style="width:45%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${spinSlot('Shoes')}</div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.13em;color:#1a1a1a;border-bottom:2.5px solid ${shoeC};padding-bottom:3px;width:fit-content">SHOES</div>
+              <div style="font-size:11px;color:var(--char);line-height:1.5">${shoeDesc}</div>
             </div>
           </div>
 
-          <!-- JACKET (if present) -->
-          ${hasJacket&&jacketDesc?`<div style="display:flex;flex:1;min-height:90px">
-            <div id="pj-img-${idx}" style="width:46%;border-right:1px solid var(--border);overflow:hidden;flex-shrink:0">${imgPlaceholder('Jacket')}</div>
-            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px">
-              <div style="font-size:9px;font-weight:700;letter-spacing:.13em;color:#111;border-bottom:2px solid ${jacketC};padding-bottom:3px;width:fit-content">JACKET</div>
-              <div style="font-size:11px;color:var(--char);line-height:1.45">${jacketDesc} <span style="color:var(--muted);font-size:10px">(optional)</span></div>
+          ${hasJacket&&jacketDesc?`<div style="display:flex;min-height:95px">
+            <div id="ji-${idx}" style="width:45%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${spinSlot('Jacket')}</div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.13em;color:#1a1a1a;border-bottom:2.5px solid ${jacketC};padding-bottom:3px;width:fit-content">JACKET</div>
+              <div style="font-size:11px;color:var(--char);line-height:1.5">${jacketDesc} <span style="color:var(--muted);font-size:10px">(optional)</span></div>
             </div>
           </div>`:''}
 
         </div>
       </div>
 
-      <!-- THE LOOK — bottom section, centered like reference image -->
-      <div style="padding:18px 20px;background:var(--surface)">
+      <!-- THE LOOK -->
+      <div style="padding:18px 20px">
         <div style="text-align:center;margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--char)">THE LOOK</div>
-          <div style="width:36px;height:2px;background:var(--gold);margin:6px auto 0"></div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--char)">THE LOOK</div>
+          <div style="width:34px;height:2px;background:var(--gold);margin:5px auto 0"></div>
         </div>
-        <div style="font-size:13.5px;line-height:1.75;color:var(--char);text-align:center;margin-bottom:10px;font-weight:500">${o.outfit}</div>
+        <div style="font-size:13.5px;line-height:1.75;color:var(--char);text-align:center;font-weight:500;margin-bottom:8px">${o.outfit}</div>
         <div style="font-size:12.5px;color:var(--muted);line-height:1.65;text-align:center">${o.why}</div>
       </div>
 
@@ -1506,61 +1497,61 @@ function renderA(r){
 
   </div>`;
 
-  // ── Imagen 3 photorealistic generation (Gemini key, no fal.ai needed) ──
-  // Loads generated photos into outfit card slots
-  function loadImgSlot(slotId, dataUrl){
+  // ── Pollinations.ai image generation — free, no key, photorealistic ──
+  // Injects a real photo URL directly into each slot <img>
+  function setSlotImg(slotId, url){
     const slot=document.getElementById(slotId);
-    if(!slot||!dataUrl)return;
+    if(!slot||!url)return;
+    slot.innerHTML='';
     const img=new Image();
-    img.onload=()=>{
-      slot.innerHTML='';
-      img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:center;display:block';
-      slot.appendChild(img);
-    };
-    img.src=dataUrl;
+    img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:center;display:block';
+    img.src=url;
+    slot.appendChild(img);
   }
 
-  // Generate all outfit images (model + products) per card
+  // Item extractor
+  function getPiece(text,keys){
+    const parts=text.split(/,(?![^()]*\))/);
+    for(const p of parts){if(keys.some(k=>p.toLowerCase().includes(k)))return p.trim();}
+    return null;
+  }
+
+  // Generate for every outfit card in parallel
   (r.outfit_ideas||[]).forEach(async(o,idx)=>{
-    const skinDesc=a.skin_tone||'medium warm brown skin';
-    const faceDesc=a.face_shape||'oval face';
+    const skinDesc=a.skin_tone||'medium warm brown skin tone';
+    const faceDesc=a.face_shape||'oval face shape';
     const ageP=P.age||25;
     const styleP=P.styleId||'masculine';
     const gender=styleP==='feminine'?'woman':styleP==='androgynous'?'person':'man';
-
-    // 1. FULL-BODY MODEL PHOTO — editorial fashion photography style
-    const modelPrompt=`Full body fashion editorial photograph of a ${gender}, ${skinDesc} skin tone, ${faceDesc} shape, approximately ${ageP} years old, wearing ${o.outfit}. Standing naturally in elegant pose. Warm indoor evening lighting, high-end restaurant or city background. Head-to-toe visible. Photorealistic, professional fashion magazine quality, sharp focus`;
-    genImg(modelPrompt).then(url=>{
-      if(!url)return;
-      const img=document.getElementById('model-img-'+idx);
-      const ph=document.getElementById('model-ph-'+idx);
-      if(img){img.onload=()=>{img.style.display='block';if(ph)ph.style.display='none';};img.src=url;}
-    });
-
-    // 2. PRODUCT SHOTS — ecommerce style, clean background
-    function getItem(text,keys){
-      const parts=text.split(/,(?![^()]*\))/);
-      for(const p of parts){if(keys.some(k=>p.toLowerCase().includes(k)))return p.trim();}
-      return null;
-    }
-    const shirtItem=getItem(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley'])||o.outfit.split(',')[0];
-    const pantItem =getItem(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt'])||o.outfit.split(',')[1]||'dark trousers';
-    const shoeItem =getItem(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer'])||o.outfit.split(',')[2]||'leather shoes';
-    const jacketItem=getItem(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']);
     const{hasJacket}=parseOutfit(o.outfit);
 
-    const PROD='Professional ecommerce product photograph, single clothing item displayed on clean light cream or white background, soft studio lighting, no model, no person, high detail, sharp focus, fashion retail quality';
-
-    // Generate all product shots in parallel
-    const tasks=[
-      genImg(`${PROD}. Item: ${shirtItem}. Style: folded neatly or hung, showing full garment`).then(u=>loadImgSlot(`ps-img-${idx}`,u)),
-      genImg(`${PROD}. Item: ${pantItem}. Style: folded flat or displayed on hanger showing full length`).then(u=>loadImgSlot(`pp-img-${idx}`,u)),
-      genImg(`${PROD}. Item: ${shoeItem}. Style: pair of shoes placed neatly side by side, slight angle`).then(u=>loadImgSlot(`psh-img-${idx}`,u)),
-    ];
-    if(hasJacket&&jacketItem){
-      tasks.push(genImg(`${PROD}. Item: ${jacketItem}. Style: displayed on hanger or folded, showing full garment`).then(u=>loadImgSlot(`pj-img-${idx}`,u)));
+    // 1. FULL-BODY EDITORIAL MODEL PHOTO
+    const modelPrompt=`Full body fashion editorial photo, ${gender} model, ${skinDesc}, ${faceDesc}, age ${ageP}, wearing ${o.outfit}, standing confidently in warm restaurant or city evening background, photorealistic, professional fashion magazine style, sharp focus head to toe, high quality`;
+    const modelUrl=await genImg(modelPrompt,{width:512,height:768});
+    if(modelUrl){
+      const mimg=document.getElementById('mimg-'+idx);
+      const mph=document.getElementById('mph-'+idx);
+      if(mimg){
+        mimg.onload=()=>{mimg.style.display='block';if(mph)mph.style.display='none';};
+        mimg.src=modelUrl;
+      }
     }
-    await Promise.all(tasks);
+
+    // 2. PRODUCT PHOTOS — flat-lay ecommerce style
+    const shirtItem=getPiece(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley','button'])||o.outfit.split(',')[0];
+    const pantItem =getPiece(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt','denim'])||o.outfit.split(',')[1]||'trousers';
+    const shoeItem =getPiece(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer'])||o.outfit.split(',')[2]||'shoes';
+    const jacketItem=hasJacket?getPiece(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']):null;
+
+    const PROD='ecommerce product photograph, single clothing item, clean cream white background, professional studio lighting, no person, no model, high detail, fashion retail quality';
+
+    // Generate all product photos in parallel
+    await Promise.all([
+      genImg(`${PROD}, ${shirtItem}, neatly displayed`,{width:400,height:400,square:true}).then(u=>setSlotImg(`si-${idx}`,u)),
+      genImg(`${PROD}, ${pantItem}, full length displayed`,{width:400,height:400,square:true}).then(u=>setSlotImg(`pi-${idx}`,u)),
+      genImg(`${PROD}, ${shoeItem}, pair of shoes side by side`,{width:400,height:400,square:true}).then(u=>setSlotImg(`shi-${idx}`,u)),
+      jacketItem?genImg(`${PROD}, ${jacketItem}, displayed on hanger`,{width:400,height:400,square:true}).then(u=>setSlotImg(`ji-${idx}`,u)):Promise.resolve()
+    ]);
   });
 
   // ── Original fal.ai async section ──────────────────────

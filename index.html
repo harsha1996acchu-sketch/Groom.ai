@@ -1126,96 +1126,38 @@ function renderA(r){
     </svg>`;
   }
 
-  // Beard SVG shapes — realistic face + beard illustrations
+  // Beard SVG shapes
   function drawBeard(name){
     const nl=name.toLowerCase();
-    const fc='#C8906A'; // face skin
-    const hc='#2A1A0A'; // hair/beard dark
-    const ec='#1A0E06'; // eyes
-    // Shared face elements
-    const face=`
-      <!-- neck -->
-      <rect x="43" y="88" width="14" height="12" rx="3" fill="${fc}"/>
-      <!-- face -->
-      <ellipse cx="50" cy="56" rx="28" ry="32" fill="${fc}"/>
-      <!-- hair top -->
-      <ellipse cx="50" cy="28" rx="27" ry="14" fill="${hc}"/>
-      <rect x="23" y="24" width="54" height="14" fill="${hc}"/>
-      <!-- ear L -->
-      <ellipse cx="22" cy="58" rx="5" ry="8" fill="${fc}"/>
-      <!-- ear R -->
-      <ellipse cx="78" cy="58" rx="5" ry="8" fill="${fc}"/>
-      <!-- eyes -->
-      <ellipse cx="38" cy="52" rx="5" ry="4" fill="#fff"/>
-      <ellipse cx="62" cy="52" rx="5" ry="4" fill="#fff"/>
-      <circle cx="39" cy="52" r="3" fill="${ec}"/>
-      <circle cx="63" cy="52" r="3" fill="${ec}"/>
-      <!-- eyebrows -->
-      <path d="M33 46 Q38 43 44 46" stroke="${hc}" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M56 46 Q62 43 67 46" stroke="${hc}" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <!-- nose -->
-      <path d="M48 58 Q46 68 50 70 Q54 68 52 58" stroke="${fc}" stroke-width="1.5" fill="none" opacity=".5"/>
-      <!-- mouth -->
-      <path d="M43 76 Q50 80 57 76" stroke="${hc}" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".6"/>
-    `;
+    const c='#4A3020';
     if(nl.includes('full')||nl.includes('round')){
-      return `<svg viewBox="0 0 100 110" style="width:90px;height:100px;display:block">
-        ${face}
-        <!-- FULL BEARD -->
-        <path d="M22 68 Q18 92 26 100 Q38 110 50 110 Q62 110 74 100 Q82 92 78 68 Q68 80 50 82 Q32 80 22 68Z" fill="${hc}"/>
-        <path d="M22 68 Q32 78 50 80 Q68 78 78 68 Q72 72 50 74 Q28 72 22 68Z" fill="${hc}" opacity=".6"/>
-        <!-- moustache -->
-        <path d="M40 75 Q45 72 50 74 Q55 72 60 75" stroke="${hc}" stroke-width="3" fill="${hc}" stroke-linecap="round"/>
+      return `<svg viewBox="0 0 100 80" style="width:80px;height:70px">
+        <ellipse cx="50" cy="30" rx="28" ry="24" fill="#C8956C"/>
+        <path d="M22 42 Q20 65 35 75 Q50 82 65 75 Q80 65 78 42 Q65 55 50 56 Q35 55 22 42Z" fill="${c}"/>
+        <path d="M35 42 Q50 50 65 42" fill="${c}"/>
       </svg>`;
-    } else if(nl.includes('stubble')){
-      return `<svg viewBox="0 0 100 110" style="width:90px;height:100px;display:block">
-        ${face}
-        <!-- STUBBLE — dot pattern -->
-        ${[...Array(5)].map((_,row)=>
-          [...Array(9)].map((_,col)=>`<circle cx="${26+col*6}" cy="${70+row*5}" r="1.2" fill="${hc}" opacity="${0.3+Math.random()*0.4}"/>`)
-          .join('')).join('')}
-        <!-- slight moustache -->
-        <path d="M41 74 Q50 72 59 74" stroke="${hc}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".6"/>
+    } else if(nl.includes('stubble')||nl.includes('short')){
+      return `<svg viewBox="0 0 100 80" style="width:80px;height:70px">
+        <ellipse cx="50" cy="30" rx="28" ry="24" fill="#C8956C"/>
+        <path d="M24 46 Q50 60 76 46 Q72 68 50 72 Q28 68 24 46Z" fill="${c}" opacity=".5"/>
+        ${[...Array(12)].map((_,i)=>`<circle cx="${22+i*5}" cy="${48+Math.sin(i)*3}" r="1.5" fill="${c}" opacity=".7"/>`).join('')}
       </svg>`;
     } else if(nl.includes('goatee')){
-      return `<svg viewBox="0 0 100 110" style="width:90px;height:100px;display:block">
-        ${face}
-        <!-- GOATEE — chin only -->
-        <ellipse cx="50" cy="93" rx="10" ry="12" fill="${hc}"/>
-        <rect x="43" y="76" width="14" height="10" rx="3" fill="${hc}"/>
-        <!-- moustache -->
-        <path d="M40 75 Q45 71 50 73 Q55 71 60 75" stroke="${hc}" stroke-width="3" fill="${hc}" stroke-linecap="round"/>
+      return `<svg viewBox="0 0 100 80" style="width:80px;height:70px">
+        <ellipse cx="50" cy="30" rx="28" ry="24" fill="#C8956C"/>
+        <ellipse cx="50" cy="58" rx="12" ry="14" fill="${c}"/>
+        <rect x="43" y="44" width="14" height="8" fill="${c}"/>
       </svg>`;
-    } else if(nl.includes('boxed')||nl.includes('short box')){
-      return `<svg viewBox="0 0 100 110" style="width:90px;height:100px;display:block">
-        ${face}
-        <!-- SHORT BOXED BEARD — clean rectangle lines -->
-        <path d="M22 66 L22 90 Q26 100 50 102 Q74 100 78 90 L78 66 Q68 74 50 76 Q32 74 22 66Z" fill="${hc}"/>
-        <!-- clean top edge highlight -->
-        <path d="M22 66 Q32 73 50 74 Q68 73 78 66" fill="none" stroke="${hc}" stroke-width="2" opacity=".4"/>
-        <!-- cheek line definition -->
-        <path d="M22 66 L23 58" stroke="${hc}" stroke-width="1.5" opacity=".5"/>
-        <path d="M78 66 L77 58" stroke="${hc}" stroke-width="1.5" opacity=".5"/>
-        <!-- moustache -->
-        <path d="M39 74 Q45 71 50 73 Q55 71 61 74" stroke="${hc}" stroke-width="3.5" fill="${hc}" stroke-linecap="round"/>
-      </svg>`;
-    } else if(nl.includes('circle')||nl.includes('chin')){
-      return `<svg viewBox="0 0 100 110" style="width:90px;height:100px;display:block">
-        ${face}
-        <!-- CIRCLE BEARD -->
-        <ellipse cx="50" cy="90" rx="13" ry="14" fill="${hc}"/>
-        <rect x="40" y="75" width="20" height="12" rx="4" fill="${hc}"/>
-        <!-- moustache connected -->
-        <path d="M37 74 Q44 70 50 72 Q56 70 63 74" stroke="${hc}" stroke-width="3.5" fill="${hc}" stroke-linecap="round"/>
+    } else if(nl.includes('boxed')||nl.includes('structured')){
+      return `<svg viewBox="0 0 100 80" style="width:80px;height:70px">
+        <ellipse cx="50" cy="30" rx="28" ry="24" fill="#C8956C"/>
+        <rect x="22" y="44" width="56" height="28" rx="4" fill="${c}"/>
+        <rect x="22" y="44" width="56" height="6" fill="${c}" opacity=".3"/>
       </svg>`;
     } else {
-      // Default medium beard
-      return `<svg viewBox="0 0 100 110" style="width:90px;height:100px;display:block">
-        ${face}
-        <!-- MEDIUM BEARD -->
-        <path d="M23 64 Q20 86 32 97 Q41 104 50 104 Q59 104 68 97 Q80 86 77 64 Q67 76 50 78 Q33 76 23 64Z" fill="${hc}"/>
-        <!-- moustache -->
-        <path d="M40 74 Q45 71 50 73 Q55 71 60 74" stroke="${hc}" stroke-width="3" fill="${hc}" stroke-linecap="round"/>
+      return `<svg viewBox="0 0 100 80" style="width:80px;height:70px">
+        <ellipse cx="50" cy="30" rx="28" ry="24" fill="#C8956C"/>
+        <path d="M22 44 Q20 68 50 74 Q80 68 78 44 Q65 56 50 57 Q35 56 22 44Z" fill="${c}"/>
       </svg>`;
     }
   }
@@ -1230,7 +1172,7 @@ function renderA(r){
     const why=typeof s==='object'?s.why_suits:'';
     const visual=isEyebrows?drawEyebrow(name,browColor):drawBeard(name);
     return `<div id="bcard-${i}" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow)">
-      <div id="bimg-${i}" style="min-height:130px;background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative;padding:12px">
+      <div id="bimg-${i}" style="min-height:90px;background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative;padding:8px">
         ${visual}
         ${i===0?'<div style="position:absolute;top:6px;left:6px;background:var(--gold);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;z-index:2">BEST</div>':''}
       </div>
@@ -1305,55 +1247,93 @@ function renderA(r){
 
   const outfitCards=(r.outfit_ideas||[]).map((o,idx)=>{
     const{hasJacket,jacketC,shirtC,pantC,shoeC}=parseOutfit(o.outfit);
-    return `<div style="background:${idx===0?'var(--gold-l)':'var(--surface)'};border:1px solid ${idx===0?'var(--gold)':'var(--border)'};border-radius:18px;margin-bottom:12px;overflow:hidden">
-      <!-- Header -->
-      <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${idx===0?'var(--gold)':'var(--muted)'}">${o.occasion}</div>
-        ${idx===0?'<div style="font-size:10px;font-weight:700;color:var(--gold)">⭐ Best match</div>':''}
+
+    // Parse outfit text to extract individual item descriptions
+    function extractItem(text, keywords){
+      const parts = text.split(/,(?![^(]*\))/);
+      for(const part of parts){
+        const pl = part.toLowerCase();
+        if(keywords.some(k=>pl.includes(k))) return part.trim();
+      }
+      return null;
+    }
+    const shirtDesc = extractItem(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','knitwear']) || o.outfit.split(',')[0];
+    const pantDesc  = extractItem(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt']) || o.outfit.split(',')[1] || 'trousers';
+    const shoeDesc  = extractItem(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal']) || o.outfit.split(',')[2] || 'shoes';
+    const jacketDesc= hasJacket ? (extractItem(o.outfit,['jacket','blazer','coat','cardigan','hoodie']) || '') : null;
+
+    return `<div style="background:var(--surface);border:1.5px solid ${idx===0?'var(--gold)':'var(--border)'};border-radius:20px;margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-lg)">
+
+      <!-- OCCASION HEADER -->
+      <div style="background:${idx===0?'var(--char)':'var(--surface2)'};padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:${idx===0?'var(--gold)':'var(--muted)'}">${o.occasion}</div>
+        ${idx===0?'<div style="font-size:11px;font-weight:700;color:var(--gold)">★ Best match</div>':''}
       </div>
-      <!-- Outfit Visual Display — always works, no API needed -->
-      <div id="tryon-wrap-${idx}" style="position:relative;background:var(--surface2);display:flex;align-items:center;justify-content:center;padding:20px 16px;gap:20px;flex-wrap:wrap">
-        <!-- Styled outfit figure -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
-          <!-- Big color-coded figure -->
-          <div style="position:relative">
+
+      <!-- MAIN LAYOUT: left = model photo, right = product shots -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;min-height:420px">
+
+        <!-- LEFT: Full body model photo -->
+        <div id="model-wrap-${idx}" style="position:relative;background:var(--surface2);overflow:hidden;border-right:1px solid var(--border)">
+          <!-- Placeholder while loading -->
+          <div id="model-ph-${idx}" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px">
             ${drawFigure(o.outfit)}
+            <div style="font-size:10px;color:var(--muted);text-align:center;line-height:1.5">${gFalKey()?'<div class="spin" style="width:18px;height:18px;border-width:2px;margin:0 auto 6px"></div>Generating look...':'Colour preview'}</div>
           </div>
-          <!-- Color legend strips -->
-          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-            ${hasJacket?`<div style="display:flex;align-items:center;gap:4px"><div style="width:20px;height:8px;border-radius:4px;background:${jacketC};border:1px solid rgba(0,0,0,.1)"></div><span style="font-size:10px;color:var(--muted);font-weight:500">Jacket</span></div>`:''}
-            <div style="display:flex;align-items:center;gap:4px"><div style="width:20px;height:8px;border-radius:4px;background:${shirtC};border:1px solid rgba(0,0,0,.1)"></div><span style="font-size:10px;color:var(--muted);font-weight:500">Shirt</span></div>
-            <div style="display:flex;align-items:center;gap:4px"><div style="width:20px;height:8px;border-radius:4px;background:${pantC};border:1px solid rgba(0,0,0,.1)"></div><span style="font-size:10px;color:var(--muted);font-weight:500">Pant</span></div>
-            <div style="display:flex;align-items:center;gap:4px"><div style="width:20px;height:8px;border-radius:4px;background:${shoeC};border:1px solid rgba(0,0,0,.1)"></div><span style="font-size:10px;color:var(--muted);font-weight:500">Shoes</span></div>
+          <!-- AI generated full-body model photo -->
+          <img id="model-img-${idx}" style="display:none;width:100%;height:100%;object-fit:cover;object-position:top" alt="Outfit look">
+        </div>
+
+        <!-- RIGHT: individual product shots stacked -->
+        <div style="display:flex;flex-direction:column">
+
+          <!-- SHIRT -->
+          <div id="prod-shirt-${idx}" style="flex:1;border-bottom:1px solid var(--border);display:flex;align-items:stretch">
+            <div id="ps-img-${idx}" style="width:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;border-right:1px solid var(--border)">👕</div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;border-bottom:1px solid ${shirtC};padding-bottom:3px">SHIRT</div>
+              <div style="font-size:11px;color:var(--char);line-height:1.4">${shirtDesc}</div>
+            </div>
           </div>
+
+          <!-- PANT -->
+          <div id="prod-pant-${idx}" style="flex:1;border-bottom:1px solid var(--border);display:flex;align-items:stretch">
+            <div id="pp-img-${idx}" style="width:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;border-right:1px solid var(--border)">👖</div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;border-bottom:1px solid ${pantC};padding-bottom:3px">PANT</div>
+              <div style="font-size:11px;color:var(--char);line-height:1.4">${pantDesc}</div>
+            </div>
+          </div>
+
+          <!-- SHOES -->
+          <div id="prod-shoes-${idx}" style="flex:1;${hasJacket?'border-bottom:1px solid var(--border);':''}display:flex;align-items:stretch">
+            <div id="psh-img-${idx}" style="width:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;border-right:1px solid var(--border)">👟</div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;border-bottom:1px solid ${shoeC};padding-bottom:3px">SHOES</div>
+              <div style="font-size:11px;color:var(--char);line-height:1.4">${shoeDesc}</div>
+            </div>
+          </div>
+
+          <!-- JACKET (conditional) -->
+          ${hasJacket&&jacketDesc?`<div id="prod-jacket-${idx}" style="flex:1;display:flex;align-items:stretch">
+            <div id="pj-img-${idx}" style="width:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.6rem;border-right:1px solid var(--border)">🧥</div>
+            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;border-bottom:1px solid ${jacketC};padding-bottom:3px">JACKET</div>
+              <div style="font-size:11px;color:var(--char);line-height:1.4">${jacketDesc}</div>
+            </div>
+          </div>`:''}
+
         </div>
-        <!-- Try-on result image (loaded async if fal.ai works) -->
-        <img id="tryon-img-${idx}" style="display:none;width:100%;max-height:400px;object-fit:contain;border-radius:12px" alt="Virtual try-on">
       </div>
-      <!-- Product shots row (loaded async) -->
-      <div id="products-wrap-${idx}" style="padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--border)">
-        <div id="prod-shirt-${idx}" style="flex-shrink:0;width:80px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--surface2)">
-          <div style="height:80px;display:flex;align-items:center;justify-content:center;font-size:1.4rem">👕</div>
-          <div style="padding:4px 6px;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;text-align:center">Shirt</div>
-        </div>
-        <div id="prod-pant-${idx}" style="flex-shrink:0;width:80px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--surface2)">
-          <div style="height:80px;display:flex;align-items:center;justify-content:center;font-size:1.4rem">👖</div>
-          <div style="padding:4px 6px;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;text-align:center">Pant</div>
-        </div>
-        <div id="prod-shoes-${idx}" style="flex-shrink:0;width:80px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--surface2)">
-          <div style="height:80px;display:flex;align-items:center;justify-content:center;font-size:1.4rem">👟</div>
-          <div style="padding:4px 6px;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;text-align:center">Shoes</div>
-        </div>
-        ${hasJacket?`<div id="prod-jacket-${idx}" style="flex-shrink:0;width:80px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--surface2)">
-          <div style="height:80px;display:flex;align-items:center;justify-content:center;font-size:1.4rem">🧥</div>
-          <div style="padding:4px 6px;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;text-align:center">Jacket</div>
-        </div>`:''}
+
+      <!-- THE LOOK section -->
+      <div style="padding:16px 18px;border-top:1px solid var(--border);background:var(--surface)">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--char);margin-bottom:8px;text-align:center">THE LOOK</div>
+        <div style="width:32px;height:2px;background:var(--gold);margin:0 auto 12px"></div>
+        <div style="font-size:13px;line-height:1.7;color:var(--char);text-align:center;margin-bottom:8px">${o.outfit}</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;text-align:center">${o.why}</div>
       </div>
-      <!-- Outfit description -->
-      <div style="padding:12px 16px">
-        <div style="font-size:13px;font-weight:500;line-height:1.6;color:var(--char);margin-bottom:6px">${o.outfit}</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.5">${o.why}</div>
-      </div>
+
     </div>`;}).join('');
 
   // ── Shirt types ─────────────────────────────────────────
@@ -1447,12 +1427,7 @@ function renderA(r){
 
     <!-- 7. BEARD / BROWS -->
     <div class="rc">
-      <div class="ch"><div class="ci" style="overflow:visible;background:none;padding:0">
-  ${r.beard_or_brows?.type==='eyebrows'
-    ? `<svg viewBox="0 0 28 28" style="width:27px;height:27px"><rect width="28" height="28" rx="6" fill="var(--blush)"/><path d="M5 18 Q14 8 23 14" stroke="var(--char)" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>`
-    : `<svg viewBox="0 0 28 28" style="width:27px;height:27px"><rect width="28" height="28" rx="6" fill="var(--blush)"/><ellipse cx="14" cy="11" rx="7" ry="6" fill="#C8956C"/><path d="M7 14 Q6 22 10 24 Q14 26 18 24 Q22 22 21 14 Q18 19 14 19 Q10 19 7 14Z" fill="#3A2010"/></svg>`
-  }
-</div><div class="ct">${r.beard_or_brows?.type==='eyebrows'?'Eyebrow Shaping':'Beard Styles'}</div></div>
+      <div class="ch"><div class="ci">${r.beard_or_brows?.type==='eyebrows'?'🪮':'🧔'}</div><div class="ct">${r.beard_or_brows?.type==='eyebrows'?'Eyebrow Shaping':'Beard Styles'}</div></div>
       <div class="cb">
         <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">${r.beard_or_brows?.recommendation||''}</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">${bCards}</div>
@@ -1478,11 +1453,11 @@ function renderA(r){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           <div style="background:#FFFBEB;border-radius:12px;padding:12px 14px;border:1px solid #FDE68A">
             <div style="font-size:11px;font-weight:700;color:#B45309;margin-bottom:6px">☀️ Morning</div>
-            <div style="font-size:12.5px;line-height:1.7;color:#1a1a1a">${sk.routine_am||''}</div>
+            <div style="font-size:12.5px;line-height:1.7;color:#111111">${sk.routine_am||''}</div>
           </div>
           <div style="background:#EFF6FF;border-radius:12px;padding:12px 14px;border:1px solid #BFDBFE">
             <div style="font-size:11px;font-weight:700;color:#1D4ED8;margin-bottom:6px">🌙 Evening</div>
-            <div style="font-size:12.5px;line-height:1.7;color:#1a1a1a">${sk.routine_pm||''}</div>
+            <div style="font-size:12.5px;line-height:1.7;color:#111111">${sk.routine_pm||''}</div>
           </div>
         </div>
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px">Key Ingredients</div>
@@ -1515,113 +1490,56 @@ function renderA(r){
 
   </div>`;
 
-  // ── Async fal.ai images + Virtual Try-On ──────────────
-  (async()=>{
-  // Upload user's photo first (needed for try-on)
-  let userPhotoUrl=null;
-  if(gFalKey()&&P.photo){
-    const updateStatus=(msg)=>{
-      (r.outfit_ideas||[]).forEach((_,idx)=>{
-        const el=document.querySelector(`#tryon-loading-${idx} div[style*="font-size:11px"]`);
-        if(el)el.innerHTML=msg;
-      });
-    };
-    updateStatus('⏳ Uploading your photo...');
-    userPhotoUrl=await uploadToFal(P.photo,'image/jpeg');
-    console.log('User photo URL result:',userPhotoUrl);
-    if(!userPhotoUrl){
-      // upload failed silently — CSS figure already shown
-    }
-  }
-
-  // ── Virtual try-on for each outfit ──────────────────────
-  if(gFalKey()&&userPhotoUrl){
-    (r.outfit_ideas||[]).forEach(async(o,idx)=>{
-      const loadDiv=document.getElementById('tryon-loading-'+idx);
-      const imgEl=document.getElementById('tryon-img-'+idx);
-      if(!loadDiv||!imgEl)return;
-
-      // Update loading text
-      const txt=loadDiv.querySelector('div[style*="font-size:11px"]');
-      if(txt)txt.innerHTML='🎨 Generating outfit...<br><span style="font-size:10px;opacity:.7">This takes ~20 seconds</span>';
-
-      // Step 1: Generate garment image using flux
-      const garmentPrompt=`Fashion product photo, flat-lay on white background, ${o.outfit}, no person, clean studio lighting, high quality ecommerce style`;
-      const garmentUrl=await genImg(garmentPrompt);
-
-      if(!garmentUrl){
-        if(txt)txt.textContent='Could not generate outfit image';
-        return;
-      }
-
-      // Update loading
-      if(txt)txt.innerHTML='👗 Trying outfit on you...<br><span style="font-size:10px;opacity:.7">Almost done...</span>';
-
-      // Step 2: Virtual try-on with user's photo
-      const tryOnUrl=await virtualTryOn(userPhotoUrl, garmentUrl, 'auto');
-
-      if(tryOnUrl&&imgEl){
-        imgEl.src=tryOnUrl;
-        imgEl.style.display='block';
-        loadDiv.style.display='none';
-        imgEl.style.borderRadius='0';
-      } else {
-        // Fallback: show garment image at least
-        if(garmentUrl&&imgEl){
-          imgEl.src=garmentUrl;
-          imgEl.style.display='block';
-          loadDiv.style.display='none';
-        } else {
-          if(txt)txt.textContent='Try-on unavailable — showing colours only';
-        }
-      }
-    });
-  }
-
-  })(); // end try-on async
-
-  // ── Option A: Product shots (always runs if fal key exists) ──
+  // ── Async fal.ai: Full-body model photos + product shots ──
   if(gFalKey()){
-    // Parse outfit items for product shots
-    function parseItems(outfitText){
-      const parts=outfitText.split(/,|and /i).map(s=>s.trim()).filter(s=>s.length>3);
-      const items={shirt:null,pant:null,shoes:null,jacket:null};
-      parts.forEach(p=>{
-        const pl=p.toLowerCase();
-        if(pl.includes('jacket')||pl.includes('blazer')||pl.includes('coat')||pl.includes('cardigan'))items.jacket=p;
-        else if(pl.includes('shirt')||pl.includes('top')||pl.includes('sweater')||pl.includes('blouse')||pl.includes('tee')||pl.includes('polo')||pl.includes('dress'))items.shirt=p;
-        if(pl.includes('trouser')||pl.includes('pant')||pl.includes('jean')||pl.includes('chino')||pl.includes('jogger')||pl.includes('skirt'))items.pant=p;
-        if(pl.includes('shoe')||pl.includes('loafer')||pl.includes('sneaker')||pl.includes('boot')||pl.includes('heel')||pl.includes('oxford'))items.shoes=p;
-      });
-      // Fallback to full outfit if items not found
-      if(!items.shirt)items.shirt=parts[0]||outfitText.slice(0,50);
-      if(!items.pant)items.pant=parts[1]||'matching trousers';
-      if(!items.shoes)items.shoes=parts[2]||'matching shoes';
-      return items;
-    }
+    const skinDesc=a.skin_tone||'medium brown skin';
+    const faceShape=a.face_shape||'oval';
+    const age=P.age||25;
+    const style=P.styleId||'masculine';
+    const gender = style==='feminine'?'woman':style==='androgynous'?'person':'man';
 
-    async function setProductImg(elId, prompt){
-      const el=document.getElementById(elId);
-      if(!el)return;
-      const url=await genImg(`Product photography, flat-lay on clean white background, ${prompt}, studio lighting, ecommerce style, no person, top-down angle`);
-      if(url){
-        const existing=el.querySelector('div:first-child');
-        if(existing){
-          existing.style.backgroundImage='url('+url+')';
-          existing.style.backgroundSize='cover';
-          existing.style.backgroundPosition='center';
-          existing.innerHTML='';
-        }
-      }
+    // Helper: swap placeholder emoji with generated image
+    async function setSlotImg(slotId, prompt, bgPrompt){
+      const slot=document.getElementById(slotId);
+      if(!slot)return;
+      const url=await genImg(bgPrompt||prompt);
+      if(!url)return;
+      const img=document.createElement('img');
+      img.crossOrigin='anonymous';
+      img.src=url;
+      img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:center;display:block';
+      img.onload=()=>{slot.innerHTML='';slot.appendChild(img);};
     }
 
     (r.outfit_ideas||[]).forEach(async(o,idx)=>{
-      const items=parseItems(o.outfit);
-      // Generate product shots in parallel
-      if(items.shirt) setProductImg(`prod-shirt-${idx}`, items.shirt);
-      if(items.pant) setProductImg(`prod-pant-${idx}`, items.pant);
-      if(items.shoes) setProductImg(`prod-shoes-${idx}`, items.shoes);
-      if(items.jacket) setProductImg(`prod-jacket-${idx}`, items.jacket);
+      // 1. Generate FULL-BODY MODEL photo — matches the reference card style
+      const modelPrompt=`Full body fashion photo, ${gender} model, ${skinDesc} skin, ${faceShape} face shape, age ${age}, wearing ${o.outfit}, standing confidently, elegant indoor restaurant or city background with warm evening lighting, editorial fashion photography, high quality, photorealistic, full body visible head to toe`;
+      const modelImgEl=document.getElementById('model-img-'+idx);
+      const modelPh=document.getElementById('model-ph-'+idx);
+      const modelUrl=await genImg(modelPrompt);
+      if(modelUrl&&modelImgEl){
+        modelImgEl.src=modelUrl;
+        modelImgEl.style.display='block';
+        if(modelPh)modelPh.style.display='none';
+      }
+
+      // 2. Parse outfit items
+      function extractPart(text, keywords){
+        const parts=text.split(/,(?![^(]*\))/);
+        for(const part of parts){const pl=part.toLowerCase();if(keywords.some(k=>pl.includes(k)))return part.trim();}
+        return null;
+      }
+      const shirtItem = extractPart(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','knitwear']) || o.outfit.split(',')[0];
+      const pantItem  = extractPart(o.outfit,['trouser','pant','jean','chino','jogger','slack','skirt']) || o.outfit.split(',')[1] || 'trousers';
+      const shoeItem  = extractPart(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal']) || o.outfit.split(',')[2] || 'shoes';
+      const jacketItem= extractPart(o.outfit,['jacket','blazer','coat','cardigan','hoodie']);
+
+      // 3. Generate individual product shots (ecommerce flat-lay style)
+      const prodBase='Ecommerce product photo, single clothing item, flat-lay on clean cream or light beige background, professional studio lighting, high quality, no person, no model';
+      setSlotImg(`ps-img-${idx}`,shirtItem,`${prodBase}, ${shirtItem}`);
+      setSlotImg(`pp-img-${idx}`,pantItem,`${prodBase}, ${pantItem}`);
+      setSlotImg(`psh-img-${idx}`,shoeItem,`${prodBase}, ${shoeItem}, shoes placed neatly`);
+      if(jacketItem) setSlotImg(`pj-img-${idx}`,jacketItem,`${prodBase}, ${jacketItem}`);
     });
   }
 

@@ -687,68 +687,57 @@ async function falPost(endpoint, body){
   return null;
 }
 
-// ── IMAGE SEARCH — free internet photos, no API key needed ──
-// Uses Unsplash Source (direct CDN, no CORS, real photos)
-// Keywords extracted from prompt for relevant results
-
-function promptToKeywords(prompt){
-  // Extract the most relevant fashion keywords
-  const lower=prompt.toLowerCase();
-  const words=[];
-  // Clothing items
-  if(lower.includes('polo'))words.push('polo shirt');
-  else if(lower.includes('t-shirt')||lower.includes('tshirt')||lower.includes('tee'))words.push('t-shirt');
-  else if(lower.includes('dress shirt')||lower.includes('button-down')||lower.includes('button down'))words.push('dress shirt');
-  else if(lower.includes('shirt'))words.push('shirt');
-  else if(lower.includes('sweater')||lower.includes('knitwear'))words.push('sweater');
-  else if(lower.includes('blouse'))words.push('blouse');
-  // Pants
-  if(lower.includes('jean')||lower.includes('denim'))words.push('jeans');
-  else if(lower.includes('chino'))words.push('chinos');
-  else if(lower.includes('trouser')||lower.includes('pant'))words.push('trousers');
-  else if(lower.includes('jogger'))words.push('jogger pants');
-  else if(lower.includes('skirt'))words.push('skirt');
-  // Outerwear
-  if(lower.includes('blazer'))words.push('blazer');
-  else if(lower.includes('suit'))words.push('suit');
-  else if(lower.includes('jacket'))words.push('jacket');
-  else if(lower.includes('coat'))words.push('coat');
-  else if(lower.includes('cardigan'))words.push('cardigan');
-  // Shoes
-  if(lower.includes('sneaker')||lower.includes('trainer'))words.push('sneakers');
-  else if(lower.includes('loafer'))words.push('loafers');
-  else if(lower.includes('oxford')||lower.includes('dress shoe'))words.push('oxford shoes');
-  else if(lower.includes('boot'))words.push('boots');
-  else if(lower.includes('heel'))words.push('heels');
-  else if(lower.includes('sandal'))words.push('sandals');
-  else if(lower.includes('shoe'))words.push('shoes');
-  // Colors — prepend to first keyword
-  const colors=['olive','burgundy','navy','charcoal','beige','cream','white','black','grey','gray','brown','rust','maroon','emerald','forest green','khaki','camel'];
-  for(const col of colors){if(lower.includes(col)){if(words.length>0)words[0]=col+' '+words[0];break;}}
-  // Context
-  if(lower.includes('model')||lower.includes('editorial')||lower.includes('full body'))words.push('fashion model');
-  if(lower.includes('ecommerce')||lower.includes('product'))words.push('fashion product photo');
-  return words.length>0?words.join(' '):'fashion clothing';
+// ── IMAGE SEARCH via Unsplash — free, no key, instant ─────
+let _iSeed=Math.floor(Math.random()*9999);
+function _toKw(prompt){
+  const l=prompt.toLowerCase(),kw=[];
+  if(l.includes('polo'))kw.push('polo shirt men');
+  else if(l.includes('t-shirt')||l.includes('tee'))kw.push('t-shirt fashion');
+  else if(l.includes('dress shirt')||l.includes('button-down')||l.includes('button down'))kw.push('dress shirt men');
+  else if(l.includes('linen shirt'))kw.push('linen shirt men');
+  else if(l.includes('shirt'))kw.push('shirt fashion');
+  else if(l.includes('sweater')||l.includes('knitwear'))kw.push('sweater fashion');
+  else if(l.includes('blouse'))kw.push('blouse fashion');
+  else if(l.includes('sherwani'))kw.push('sherwani men fashion');
+  else if(l.includes('kurta'))kw.push('kurta men fashion');
+  else if(l.includes('suit'))kw.push('suit men fashion');
+  if(l.includes('jeans')||l.includes('denim'))kw.push('jeans fashion');
+  else if(l.includes('chinos')||l.includes('chino'))kw.push('chinos men fashion');
+  else if(l.includes('trousers')||l.includes('pants'))kw.push('trousers men fashion');
+  else if(l.includes('jogger'))kw.push('jogger pants fashion');
+  if(l.includes('blazer'))kw.push('blazer men fashion');
+  else if(l.includes('jacket'))kw.push('jacket men fashion');
+  else if(l.includes('coat'))kw.push('coat men fashion');
+  else if(l.includes('cardigan'))kw.push('cardigan fashion');
+  if(l.includes('sneakers')||l.includes('sneaker'))kw.push('sneakers shoes fashion');
+  else if(l.includes('loafers')||l.includes('loafer'))kw.push('loafers shoes men');
+  else if(l.includes('oxford'))kw.push('oxford shoes men');
+  else if(l.includes('boots')||l.includes('boot'))kw.push('boots men fashion');
+  else if(l.includes('shoes')||l.includes('shoe'))kw.push('shoes men fashion');
+  const cols=['olive','burgundy','navy','charcoal','beige','cream','white','black','grey','brown','rust','maroon','emerald','khaki','camel','mustard'];
+  for(const col of cols){if(l.includes(col)){if(kw.length>0)kw[0]=col+' '+kw[0];break;}}
+  if(l.includes('woman')||l.includes('female'))kw.push('woman fashion model');
+  else if(l.includes('model')||l.includes('editorial')||l.includes('full body'))kw.push('man fashion editorial model');
+  if(l.includes('hairstyle')||l.includes('haircut'))kw.push('men hairstyle haircut');
+  if(l.includes('beard'))kw.push('men beard style');
+  if(l.includes('watch'))kw.push('luxury watch accessory');
+  if(l.includes('sunglasses')||l.includes('glasses'))kw.push('men sunglasses fashion');
+  return kw.length?kw.join(' '):'men fashion outfit style';
 }
-
-async function genImg(prompt, opts={}){
-  const {square=false}=opts;
-  const kw=promptToKeywords(prompt);
-  const encoded=encodeURIComponent(kw);
-  const w=square?400:512, h=square?400:768;
-  const seed=Math.floor(Math.random()*1000);
-
-  // Try Unsplash Source — free, CORS-open, real photography
-  const url=`https://source.unsplash.com/featured/${w}x${h}/?${encoded}&sig=${seed}`;
+async function genImg(prompt,opts={}){
+  const{square=false,w:pw,h:ph}=opts;
+  const w=pw||(square?400:512),h=ph||(square?400:768);
+  const kw=_toKw(prompt);
+  const sig=(_iSeed++)%99999;
+  const url=`https://source.unsplash.com/featured/${w}x${h}/?${encodeURIComponent(kw)}&sig=${sig}`;
   return new Promise(resolve=>{
     const img=new Image();
-    const timer=setTimeout(()=>{img.src='';resolve(null);},12000);
-    img.onload=()=>{clearTimeout(timer);resolve(url);};
+    const t=setTimeout(()=>{img.src='';resolve(null);},12000);
+    img.onload=()=>{clearTimeout(t);resolve(url);};
     img.onerror=()=>{
-      clearTimeout(timer);
-      // Fallback: broader fashion keyword
-      const fallbackUrl=`https://source.unsplash.com/featured/${w}x${h}/?fashion,${square?'clothing':'outfit,model'}&sig=${seed}`;
-      resolve(fallbackUrl);
+      clearTimeout(t);
+      // Broad fallback
+      resolve(`https://source.unsplash.com/featured/${w}x${h}/?fashion,${square?'clothing':'outfit,model'}&sig=${sig}`);
     };
     img.src=url;
   });
@@ -1298,76 +1287,78 @@ function renderA(r){
     </svg>`;
   }
 
-  function getOItem(text,keys){
+  // Item extractor helper
+  function _getItem(text,keys){
     const parts=text.split(/,(?![^()]*\))/);
     for(const p of parts){if(keys.some(k=>p.toLowerCase().includes(k)))return p.trim();}
     return null;
   }
-  function spinSlot(label){
-    return `<div style="width:100%;height:100%;min-height:95px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:#F7F4EF">
-      <div style="width:18px;height:18px;border:2px solid #ddd;border-top-color:var(--gold);border-radius:50%;animation:spin .85s linear infinite"></div>
-      <div style="font-size:9px;color:#bbb;letter-spacing:.04em">${label}</div>
+  // Spinner placeholder
+  function _spin(label){
+    return `<div style="width:100%;height:100%;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:#F8F5F0">
+      <div style="width:18px;height:18px;border:2px solid #E0D9D0;border-top-color:var(--gold);border-radius:50%;animation:spin .85s linear infinite"></div>
+      <div style="font-size:9px;color:#BBB;letter-spacing:.05em">${label}</div>
     </div>`;
   }
 
   const outfitCards=(r.outfit_ideas||[]).map((o,idx)=>{
     const{hasJacket,jacketC,shirtC,pantC,shoeC}=parseOutfit(o.outfit);
-    const shirtDesc=getOItem(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley','button'])||o.outfit.split(',')[0]||'Shirt';
-    const pantDesc =getOItem(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt','denim'])||o.outfit.split(',')[1]||'Trousers';
-    const shoeDesc =getOItem(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer'])||o.outfit.split(',')[2]||'Shoes';
-    const jacketDesc=getOItem(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']);
+    const shirtDesc=_getItem(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley','button','kurta','sherwani'])||o.outfit.split(',')[0]||'Shirt';
+    const pantDesc =_getItem(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt','denim','churidar'])||o.outfit.split(',')[1]||'Trousers';
+    const shoeDesc =_getItem(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer','mojari','juttu'])||o.outfit.split(',')[2]||'Shoes';
+    const jacketDesc=_getItem(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']);
 
     return `<div style="border:1.5px solid ${idx===0?'var(--gold)':'var(--border)'};border-radius:20px;margin-bottom:20px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow-lg)">
 
-      <!-- HEADER -->
+      <!-- HEADER BAR — dark like reference image -->
       <div style="background:${idx===0?'#1C1C1C':'var(--surface2)'};padding:13px 18px;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:${idx===0?'var(--gold)':'var(--muted)'}">${o.occasion}</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:${idx===0?'var(--gold)':'var(--muted)'}">${o.occasion}</div>
         ${idx===0?'<div style="font-size:11px;font-weight:600;color:var(--gold)">★ Best match</div>':''}
       </div>
 
-      <!-- BODY -->
+      <!-- MAIN: left=model photo, right=product slots -->
       <div style="display:grid;grid-template-columns:48% 52%;border-bottom:1px solid var(--border)">
 
-        <!-- LEFT: full-body fashion model photo from internet -->
-        <div style="position:relative;min-height:380px;overflow:hidden;border-right:1px solid var(--border)">
-          <div id="mph-${idx}" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#F7F4EF">
-            <div style="width:24px;height:24px;border:2.5px solid #ddd;border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite"></div>
-            <div style="font-size:10px;color:#bbb">Loading photo...</div>
+        <!-- LEFT: full-body fashion model photo -->
+        <div style="position:relative;min-height:360px;overflow:hidden;border-right:1px solid var(--border)">
+          <div id="mph-${idx}" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#F8F5F0">
+            <div style="width:24px;height:24px;border:2.5px solid #DDD;border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite"></div>
+            <div style="font-size:10px;color:#BBB;font-weight:500">Loading photo...</div>
           </div>
-          <img id="mimg-${idx}" style="display:none;width:100%;height:100%;object-fit:cover;object-position:top;position:absolute;inset:0" alt="outfit look" crossorigin="anonymous">
+          <img id="mimg-${idx}" style="display:none;width:100%;height:100%;object-fit:cover;object-position:top;position:absolute;inset:0" alt="outfit look">
         </div>
 
-        <!-- RIGHT: product photos stacked -->
+        <!-- RIGHT: product slots stacked -->
         <div style="display:flex;flex-direction:column">
 
-          <div style="display:flex;min-height:95px;border-bottom:1px solid var(--border)">
-            <div id="si-${idx}" style="width:45%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${spinSlot('Shirt')}</div>
-            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px">
-              <div style="font-size:9px;font-weight:800;letter-spacing:.13em;color:#111;border-bottom:2.5px solid ${shirtC};padding-bottom:3px;width:fit-content">SHIRT</div>
+          <div style="display:flex;min-height:90px;border-bottom:1px solid var(--border)">
+            <div id="si-${idx}" style="width:44%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${_spin('Shirt')}</div>
+            <div style="flex:1;padding:9px 11px;display:flex;flex-direction:column;justify-content:center;gap:3px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#111;border-bottom:2.5px solid ${shirtC};padding-bottom:2px;width:fit-content">SHIRT</div>
               <div style="font-size:11px;color:var(--char);line-height:1.45">${shirtDesc}</div>
             </div>
           </div>
 
-          <div style="display:flex;min-height:95px;border-bottom:1px solid var(--border)">
-            <div id="pi-${idx}" style="width:45%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${spinSlot('Pant')}</div>
-            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px">
-              <div style="font-size:9px;font-weight:800;letter-spacing:.13em;color:#111;border-bottom:2.5px solid ${pantC};padding-bottom:3px;width:fit-content">PANT</div>
+          <div style="display:flex;min-height:90px;border-bottom:1px solid var(--border)">
+            <div id="pi-${idx}" style="width:44%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${_spin('Pant')}</div>
+            <div style="flex:1;padding:9px 11px;display:flex;flex-direction:column;justify-content:center;gap:3px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#111;border-bottom:2.5px solid ${pantC};padding-bottom:2px;width:fit-content">PANT</div>
               <div style="font-size:11px;color:var(--char);line-height:1.45">${pantDesc}</div>
             </div>
           </div>
 
-          <div style="display:flex;min-height:95px;${hasJacket&&jacketDesc?'border-bottom:1px solid var(--border);':''}">
-            <div id="shi-${idx}" style="width:45%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${spinSlot('Shoes')}</div>
-            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px">
-              <div style="font-size:9px;font-weight:800;letter-spacing:.13em;color:#111;border-bottom:2.5px solid ${shoeC};padding-bottom:3px;width:fit-content">SHOES</div>
+          <div style="display:flex;min-height:90px;${hasJacket&&jacketDesc?'border-bottom:1px solid var(--border);':''}">
+            <div id="shi-${idx}" style="width:44%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${_spin('Shoes')}</div>
+            <div style="flex:1;padding:9px 11px;display:flex;flex-direction:column;justify-content:center;gap:3px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#111;border-bottom:2.5px solid ${shoeC};padding-bottom:2px;width:fit-content">SHOES</div>
               <div style="font-size:11px;color:var(--char);line-height:1.45">${shoeDesc}</div>
             </div>
           </div>
 
-          ${hasJacket&&jacketDesc?`<div style="display:flex;min-height:95px">
-            <div id="ji-${idx}" style="width:45%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${spinSlot('Jacket')}</div>
-            <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px">
-              <div style="font-size:9px;font-weight:800;letter-spacing:.13em;color:#111;border-bottom:2.5px solid ${jacketC};padding-bottom:3px;width:fit-content">JACKET</div>
+          ${hasJacket&&jacketDesc?`<div style="display:flex;min-height:90px">
+            <div id="ji-${idx}" style="width:44%;flex-shrink:0;border-right:1px solid var(--border);overflow:hidden">${_spin('Jacket')}</div>
+            <div style="flex:1;padding:9px 11px;display:flex;flex-direction:column;justify-content:center;gap:3px">
+              <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#111;border-bottom:2.5px solid ${jacketC};padding-bottom:2px;width:fit-content">JACKET</div>
               <div style="font-size:11px;color:var(--char);line-height:1.45">${jacketDesc} <span style="color:var(--muted);font-size:10px">(optional)</span></div>
             </div>
           </div>`:''}
@@ -1375,13 +1366,13 @@ function renderA(r){
         </div>
       </div>
 
-      <!-- THE LOOK -->
+      <!-- THE LOOK section -->
       <div style="padding:18px 20px">
-        <div style="text-align:center;margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--char)">THE LOOK</div>
-          <div style="width:34px;height:2px;background:var(--gold);margin:5px auto 0"></div>
+        <div style="text-align:center;margin-bottom:10px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--char)">THE LOOK</div>
+          <div style="width:32px;height:2px;background:var(--gold);margin:5px auto 0"></div>
         </div>
-        <div style="font-size:13.5px;line-height:1.75;color:var(--char);text-align:center;font-weight:500;margin-bottom:8px">${o.outfit}</div>
+        <div style="font-size:13.5px;font-weight:500;line-height:1.75;color:var(--char);text-align:center;margin-bottom:8px">${o.outfit}</div>
         <div style="font-size:12.5px;color:var(--muted);line-height:1.65;text-align:center">${o.why}</div>
       </div>
 
@@ -1518,6 +1509,94 @@ function renderA(r){
       </div>
     </div>
 
+    <!-- AI VISUAL ANALYSIS CARDS: Color / Hairstyle / Accessories -->
+    <div class="rc" id="visual-analysis-wrap">
+      <div class="ch">
+        <div class="ci">🎨</div>
+        <div class="ct">Visual Style Analysis</div>
+      </div>
+      <div class="cb" style="padding:.75rem">
+        <!-- Tab switcher -->
+        <div style="display:flex;gap:6px;margin-bottom:1rem;background:var(--surface2);padding:4px;border-radius:10px">
+          <button onclick="showVA('color')" id="vt-color" style="flex:1;padding:.4rem;background:var(--gold);color:#000;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🎨 Colors</button>
+          <button onclick="showVA('hair')" id="vt-hair" style="flex:1;padding:.4rem;background:transparent;color:var(--muted);border:none;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💈 Hair</button>
+          <button onclick="showVA('acc')" id="vt-acc" style="flex:1;padding:.4rem;background:transparent;color:var(--muted);border:none;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">⌚ Access.</button>
+        </div>
+
+        <!-- COLOR ANALYSIS panel -->
+        <div id="va-color">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:.75rem;text-align:center">Colors that work best vs worst for your skin tone</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="va-color-grid">
+            ${(cp.best_colors||[]).slice(0,4).map((clr,i)=>`
+            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+              <div id="va-cimg-${i}" style="height:80px;background:${clr.hex};display:flex;align-items:flex-end;padding:4px">
+                <span style="background:rgba(0,0,0,.55);color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:100px;text-transform:uppercase">${clr.rating}</span>
+              </div>
+              <div style="padding:6px 8px;background:var(--surface)">
+                <div style="font-size:11px;font-weight:600;color:var(--char)">${clr.name}</div>
+                <div style="font-size:10px;color:var(--muted)">${clr.clothing||''}</div>
+              </div>
+            </div>`).join('')}
+          </div>
+          <div style="margin-top:10px">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--red);margin-bottom:6px">✗ Avoid these colors</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              ${(cp.avoid_colors||[]).map(clr=>`
+              <div style="display:flex;align-items:center;gap:5px;background:var(--red-l);border-radius:8px;padding:5px 8px">
+                <div style="width:18px;height:18px;border-radius:4px;background:${clr.hex}"></div>
+                <span style="font-size:11px;color:var(--char)">${clr.name}</span>
+              </div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- HAIRSTYLE panel -->
+        <div id="va-hair" style="display:none">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:.75rem;text-align:center">Best hairstyles for your face shape: <strong style="color:var(--char)">${a.face_shape||''}</strong></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            ${(r.hairstyle?.top_3||[]).map((s,i)=>{
+              const name=typeof s==='object'?s.name:s.split(':')[0];
+              const why=typeof s==='object'?s.why_suits:'';
+              return `<div style="border-radius:12px;overflow:hidden;border:1px solid ${i===0?'var(--gold)':'var(--border)'}">
+                <div id="va-himg-${i}" style="height:90px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative">
+                  💈${i===0?'<div style="position:absolute;top:4px;left:4px;background:var(--gold);color:#000;font-size:8px;font-weight:700;padding:1px 6px;border-radius:100px">BEST</div>':''}
+                </div>
+                <div style="padding:6px 8px;background:var(--surface)">
+                  <div style="font-size:10px;font-weight:700;color:var(--char)">${name}</div>
+                  ${why?`<div style="font-size:9px;color:var(--gold);margin-top:2px">${why.slice(0,40)}...</div>`:''}
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- ACCESSORIES panel -->
+        <div id="va-acc" style="display:none">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:.75rem;text-align:center">Best accessories for your style & face shape</div>
+          <div id="va-acc-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <!-- Loaded by JS below -->
+            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+              <div id="va-aimg-0" style="height:80px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.5rem">⌚</div>
+              <div style="padding:6px 8px;background:var(--surface)"><div style="font-size:11px;font-weight:600;color:var(--char)">Watch</div><div style="font-size:10px;color:var(--gold)">${cp.metals?.best||'Gold'} tone</div></div>
+            </div>
+            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+              <div id="va-aimg-1" style="height:80px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.5rem">🕶️</div>
+              <div style="padding:6px 8px;background:var(--surface)"><div style="font-size:11px;font-weight:600;color:var(--char)">Sunglasses</div><div style="font-size:10px;color:var(--muted)">For ${a.face_shape||'your'} face</div></div>
+            </div>
+            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+              <div id="va-aimg-2" style="height:80px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.5rem">📿</div>
+              <div style="padding:6px 8px;background:var(--surface)"><div style="font-size:11px;font-weight:600;color:var(--char)">Chain / Necklace</div><div style="font-size:10px;color:var(--muted)">${cp.metals?.best||'Gold'} metal</div></div>
+            </div>
+            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border)">
+              <div id="va-aimg-3" style="height:80px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.5rem">👜</div>
+              <div style="padding:6px 8px;background:var(--surface)"><div style="font-size:11px;font-weight:600;color:var(--char)">Bag / Belt</div><div style="font-size:10px;color:var(--muted)">Warm leather tones</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- 10. PERFUME -->
     <div class="rc">
       <div class="ch"><div class="ci">🌸</div><div class="ct">Signature Perfume</div></div>
@@ -1541,58 +1620,108 @@ function renderA(r){
 
   </div>`;
 
-  // ── Load real internet photos (Unsplash) into outfit slots ──
-  // Sets a real photo from Unsplash into a slot div
-  function setSlotPhoto(slotId, url){
+  // ── Load all images via Unsplash — zero dependencies ────────
+  function _loadImg(slotId, url, cover=true){
     const slot=document.getElementById(slotId);
     if(!slot||!url)return;
     const img=new Image();
     img.crossOrigin='anonymous';
-    img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:center;display:block';
+    img.style.cssText=`width:100%;height:100%;object-fit:${cover?'cover':'contain'};object-position:${cover?'top':'center'};display:block`;
     img.onload=()=>{slot.innerHTML='';slot.appendChild(img);};
-    img.onerror=()=>{}; // keep spinner on error
     img.src=url;
   }
 
-  // Extract a clothing piece from outfit text
-  function getPiece(text,keys){
-    const parts=text.split(/,(?![^()]*\))/);
-    for(const p of parts){if(keys.some(k=>p.toLowerCase().includes(k)))return p.trim();}
-    return null;
-  }
+  const _styleP=P.styleId||'masculine';
+  const _gender=_styleP==='feminine'?'woman':_styleP==='androgynous'?'person':'man';
+  const _skinD=a.skin_tone||'medium warm brown skin';
 
-  // Load all outfit card photos in parallel
+  // 1. OUTFIT CARDS — model photo + 4 product slots (all parallel)
   (r.outfit_ideas||[]).forEach(async(o,idx)=>{
-    const styleP=P.styleId||'masculine';
-    const gender=styleP==='feminine'?'woman fashion':'styleP==="androgynous"?"streetwear fashion":"man fashion"';
     const{hasJacket}=parseOutfit(o.outfit);
+    const shirtI=_getItem(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley','button','kurta','sherwani'])||o.outfit.split(',')[0];
+    const pantI =_getItem(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt','denim','churidar'])||o.outfit.split(',')[1]||'trousers';
+    const shoeI =_getItem(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer','mojari'])||o.outfit.split(',')[2]||'shoes';
+    const jackI =hasJacket?_getItem(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']):null;
 
-    // Extract item keywords
-    const shirtItem=getPiece(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley','button'])||o.outfit.split(',')[0]||'shirt';
-    const pantItem =getPiece(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt','denim'])||o.outfit.split(',')[1]||'trousers';
-    const shoeItem =getPiece(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer'])||o.outfit.split(',')[2]||'shoes';
-    const jacketItem=hasJacket?getPiece(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']):null;
-
-    // 1. FULL-BODY MODEL PHOTO
-    const modelKw=encodeURIComponent(`${styleP==='feminine'?'woman':'man'} fashion outfit editorial style`);
-    const modelUrl=await genImg(`fashion model ${styleP==='feminine'?'woman':'man'} wearing ${o.outfit}`);
-    if(modelUrl){
+    // Model photo (left panel)
+    genImg(`${_gender} fashion editorial model wearing ${o.outfit} full body head to toe`).then(u=>{
+      if(!u)return;
       const mimg=document.getElementById('mimg-'+idx);
       const mph=document.getElementById('mph-'+idx);
-      if(mimg){
-        mimg.onload=()=>{mimg.style.display='block';if(mph)mph.style.display='none';};
-        mimg.onerror=()=>{};
-        mimg.src=modelUrl;
+      if(mimg){mimg.onload=()=>{mimg.style.display='block';if(mph)mph.style.display='none';};mimg.src=u;}
+    });
+
+    // Product slots (right panel) — all parallel
+    await Promise.all([
+      genImg(shirtI+' fashion clothing product ecommerce',{square:true}).then(u=>_loadImg(`si-${idx}`,u)),
+      genImg(pantI+' fashion clothing product ecommerce',{square:true}).then(u=>_loadImg(`pi-${idx}`,u)),
+      genImg(shoeI+' footwear product fashion ecommerce',{square:true}).then(u=>_loadImg(`shi-${idx}`,u)),
+      jackI?genImg(jackI+' fashion clothing product ecommerce',{square:true}).then(u=>_loadImg(`ji-${idx}`,u)):Promise.resolve()
+    ]);
+  });
+
+  // 2. COLOR CARDS — person wearing that color
+  (cp.best_colors||[]).forEach(async(clr,ci)=>{
+    const url=await genImg(`${_gender} fashion model wearing ${clr.name} colored ${clr.clothing||'outfit'} editorial style`);
+    if(url){
+      const el=document.getElementById('cimg-'+ci);
+      if(el){
+        const img=document.createElement('img');
+        img.crossOrigin='anonymous';
+        img.src=url;
+        img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:top;display:block';
+        img.onload=()=>{el.innerHTML='';el.appendChild(img);el.style.height='100px';};
       }
     }
+  });
 
-    // 2. PRODUCT PHOTOS — all parallel
-    await Promise.all([
-      genImg(shirtItem+' fashion clothing product',{square:true}).then(u=>setSlotPhoto(`si-${idx}`,u)),
-      genImg(pantItem+' fashion clothing product',{square:true}).then(u=>setSlotPhoto(`pi-${idx}`,u)),
-      genImg(shoeItem+' footwear product',{square:true}).then(u=>setSlotPhoto(`shi-${idx}`,u)),
-      jacketItem?genImg(jacketItem+' fashion clothing product',{square:true}).then(u=>setSlotPhoto(`ji-${idx}`,u)):Promise.resolve()
-    ]);
+  // 3. HAIRSTYLE CARDS — real hairstyle photos
+  (r.hairstyle?.top_3||[]).forEach(async(s,i)=>{
+    const name=typeof s==='object'?s.name:s.split(':')[0];
+    const url=await genImg(`${_gender} ${name} hairstyle haircut close up portrait fashion`,{square:true});
+    _loadImg('himg-'+i, url);
+  });
+
+  // 4. BEARD / EYEBROW CARDS
+  (r.beard_or_brows?.top_3||[]).forEach(async(s,i)=>{
+    const name=typeof s==='object'?s.name:s.split(':')[0];
+    const type=r.beard_or_brows?.type==='eyebrows'?'eyebrows grooming':'beard style';
+    const url=await genImg(`${_gender} ${name} ${type} close up portrait fashion`,{square:true});
+    _loadImg('bimg-'+i, url);
+  });
+
+  // ── Visual Analysis tab switcher ─────────────────────────
+  window.showVA=function(tab){
+    ['color','hair','acc'].forEach(t=>{
+      document.getElementById('va-'+t).style.display=t===tab?'block':'none';
+      const btn=document.getElementById('vt-'+t);
+      if(btn){btn.style.background=t===tab?'var(--gold)':'transparent';btn.style.color=t===tab?'#000':'var(--muted)';}
+    });
+  };
+
+  // Load hairstyle images into VA panel
+  (r.hairstyle?.top_3||[]).forEach(async(s,i)=>{
+    const name=typeof s==='object'?s.name:s.split(':')[0];
+    const url=await genImg(`${_gender} ${name} hairstyle haircut portrait close-up`,{square:true,w:200,h:200});
+    _loadImg('va-himg-'+i,url);
+  });
+
+  // Load color card images into VA panel
+  (cp.best_colors||[]).slice(0,4).forEach(async(clr,i)=>{
+    const url=await genImg(`${_gender} wearing ${clr.name} color outfit fashion editorial`,{square:true,w:200,h:200});
+    _loadImg('va-cimg-'+i,url);
+  });
+
+  // Load accessories images into VA panel
+  const accItems=[
+    `${cp.metals?.best||'gold'} metal luxury watch men fashion accessory`,
+    `men sunglasses ${a.face_shape||''} face shape fashion`,
+    `men gold chain necklace fashion accessory`,
+    `men leather belt bag fashion accessory warm tone`
+  ];
+  accItems.forEach(async(prompt,i)=>{
+    const url=await genImg(prompt,{square:true,w:200,h:200});
+    _loadImg('va-aimg-'+i,url);
   });
 
   // ── Original fal.ai async section ──────────────────────

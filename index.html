@@ -687,25 +687,18 @@ async function falPost(endpoint, body){
   return null;
 }
 
-// ── COLOR-ACCURATE SVG ILLUSTRATIONS (zero external deps) ──
-function _enc(s){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);}
-function _dk(h,a){try{let r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);r=Math.max(0,Math.round(r*(1-a)));g=Math.max(0,Math.round(g*(1-a)));b=Math.max(0,Math.round(b*(1-a)));return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}catch(e){return h;}}
-
-function svgFigure(sc,pc,shc,jc,skin){
-  const s=sc||'#4A7C59',p=pc||'#2C3E50',sh=shc||'#6B4423',sk=skin||'#C8906A',hc='#1A0A00',hj=!!(jc&&jc!='none');const j=hj?jc:s;
-  return _enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 480"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a1a2e"/><stop offset="100%" stop-color="#0d0c1a"/></linearGradient></defs><rect width="300" height="480" fill="url(#bg)"/><ellipse cx="150" cy="462" rx="60" ry="10" fill="rgba(0,0,0,.35)"/><rect x="96" y="418" width="46" height="24" rx="12" fill="${sh}"/><rect x="158" y="418" width="46" height="24" rx="12" fill="${sh}"/><rect x="104" y="413" width="32" height="10" rx="5" fill="${sh}"/><rect x="164" y="413" width="32" height="10" rx="5" fill="${sh}"/><rect x="100" y="262" width="42" height="158" rx="8" fill="${p}"/><rect x="158" y="262" width="42" height="158" rx="8" fill="${p}"/><rect x="96" y="258" width="108" height="10" rx="3" fill="rgba(0,0,0,.4)"/><rect x="140" y="257" width="20" height="12" rx="2" fill="rgba(200,160,80,.7)"/><path d="M96 168 Q88 184 86 262 L214 262 Q212 184 204 168 Q188 160 150 158 Q112 160 96 168Z" fill="${s}"/>${hj?`<path d="M86 174 Q70 188 68 262 L102 262 L102 182Z" fill="${j}"/><path d="M214 174 Q230 188 232 262 L198 262 L198 182Z" fill="${j}"/><path d="M86 174 Q98 168 110 178 L102 262 L68 262Z" fill="${j}"/><path d="M214 174 Q202 168 190 178 L198 262 L232 262Z" fill="${j}"/><path d="M110 178 L118 163 L100 175Z" fill="${s}"/><path d="M190 178 L182 163 L200 175Z" fill="${s}"/>`:''}<path d="M96 170 Q68 204 72 284 L92 280 Q90 212 108 184Z" fill="${hj?j:s}"/><path d="M204 170 Q232 204 228 284 L208 280 Q210 212 192 184Z" fill="${hj?j:s}"/><ellipse cx="80" cy="288" rx="11" ry="15" fill="${sk}"/><ellipse cx="220" cy="288" rx="11" ry="15" fill="${sk}"/><rect x="140" y="138" width="20" height="26" rx="7" fill="${sk}"/><ellipse cx="150" cy="112" rx="44" ry="50" fill="${sk}"/><path d="M106 100 Q110 60 150 52 Q190 60 194 100 Q180 76 150 72 Q120 76 106 100Z" fill="${hc}"/><rect x="106" y="88" width="88" height="16" fill="${hc}"/><ellipse cx="106" cy="114" rx="9" ry="13" fill="${sk}"/><ellipse cx="194" cy="114" rx="9" ry="13" fill="${sk}"/><ellipse cx="136" cy="108" rx="8" ry="6" fill="white"/><ellipse cx="164" cy="108" rx="8" ry="6" fill="white"/><circle cx="138" cy="108" r="4.5" fill="${hc}"/><circle cx="166" cy="108" r="4.5" fill="${hc}"/><circle cx="139" cy="106" r="1.8" fill="white" opacity=".7"/><circle cx="167" cy="106" r="1.8" fill="white" opacity=".7"/><path d="M126 101 Q136 96 146 100" stroke="${hc}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M154 100 Q164 96 174 101" stroke="${hc}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M140 140 Q150 147 160 140" stroke="rgba(0,0,0,.18)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`);
-}
-function svgShirt(color){const c=color||'#4A7C59';const d=_dk(c,.2);return _enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280"><rect width="280" height="280" fill="#F5F2ED"/><ellipse cx="140" cy="252" rx="72" ry="10" fill="rgba(0,0,0,.06)"/><path d="M76 70 L54 106 L56 138 L82 122 L84 108 L86 70 Q100 60 122 58 L122 84 Q132 94 140 94 Q148 94 158 84 L158 58 Q180 60 194 70 L196 108 L198 122 L224 138 L226 106 L204 70 Q184 54 140 52 Q96 54 76 70Z" fill="${c}"/><path d="M122 58 Q132 76 140 78 Q148 76 158 58" fill="${c}" stroke="${d}" stroke-width="1" opacity=".5"/><path d="M122 62 L140 82 L158 62" fill="none" stroke="${d}" stroke-width="1.5" opacity=".4"/><line x1="140" y1="94" x2="140" y2="224" stroke="${d}" stroke-width="1" opacity=".15"/></svg>`);}
-function svgPants(color){const c=color||'#2C3E50';const d=_dk(c,.25);return _enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280"><rect width="280" height="280" fill="#F5F2ED"/><ellipse cx="140" cy="264" rx="70" ry="10" fill="rgba(0,0,0,.06)"/><rect x="72" y="38" width="136" height="24" rx="5" fill="${c}"/><rect x="128" y="34" width="24" height="14" rx="2" fill="rgba(0,0,0,.3)"/><path d="M72 60 L76 258 L134 258 L140 148 L146 258 L204 258 L208 60Z" fill="${c}"/><line x1="140" y1="60" x2="140" y2="258" stroke="${d}" stroke-width="1.5" opacity=".15"/></svg>`);}
-function svgShoes(color){const c=color||'#6B4423';return _enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280"><rect width="280" height="280" fill="#F5F2ED"/><ellipse cx="90" cy="236" rx="70" ry="13" fill="rgba(0,0,0,.07)"/><path d="M30 176 Q34 212 54 226 L154 226 Q166 208 158 176 Q142 156 94 154 Q46 156 30 176Z" fill="${c}"/><rect x="30" y="173" width="128" height="14" rx="5" fill="rgba(255,255,255,.14)"/><ellipse cx="152" cy="158" rx="18" ry="12" fill="${c}"/><ellipse cx="200" cy="194" rx="66" ry="12" fill="rgba(0,0,0,.07)"/><path d="M140 136 Q144 168 162 182 L256 182 Q268 164 262 136 Q248 118 202 116 Q156 118 140 136Z" fill="${c}"/><rect x="140" y="133" width="122" height="14" rx="5" fill="rgba(255,255,255,.14)"/><ellipse cx="258" cy="118" rx="16" ry="10" fill="${c}"/></svg>`);}
-function svgJacket(color){const c=color||'#3D3D3D';const d=_dk(c,.2);return _enc(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280"><rect width="280" height="280" fill="#F5F2ED"/><ellipse cx="140" cy="252" rx="76" ry="12" fill="rgba(0,0,0,.06)"/><path d="M72 56 L52 94 L52 240 L228 240 L228 94 L208 56 Q188 44 140 42 Q92 44 72 56Z" fill="${c}"/><path d="M120 56 L100 90 L128 90 L140 72Z" fill="rgba(255,255,255,.1)"/><path d="M160 56 L180 90 L152 90 L140 72Z" fill="rgba(255,255,255,.1)"/><circle cx="140" cy="126" r="5" fill="rgba(0,0,0,.3)"/><circle cx="140" cy="152" r="5" fill="rgba(0,0,0,.3)"/><circle cx="140" cy="178" r="5" fill="rgba(0,0,0,.3)"/><rect x="158" y="134" width="42" height="5" rx="2.5" fill="rgba(0,0,0,.18)"/><path d="M72 58 L32 118 L42 156 L68 132 L74 96Z" fill="${c}"/><path d="M208 58 L248 118 L238 156 L212 132 L206 96Z" fill="${c}"/></svg>`);}
-function genImg(prompt,colors){
-  const c=colors||{},l=(prompt||'').toLowerCase();
-  if(l.includes('trouser')||l.includes('pant')||l.includes('jean')||l.includes('chino')||l.includes('jogger')||l.includes('skirt'))return Promise.resolve(svgPants(c.pant));
-  if(l.includes('shoe')||l.includes('sneaker')||l.includes('loafer')||l.includes('boot')||l.includes('oxford')||l.includes('sandal')||l.includes('trainer'))return Promise.resolve(svgShoes(c.shoe));
-  if(l.includes('jacket')||l.includes('blazer')||l.includes('coat')||l.includes('cardigan'))return Promise.resolve(svgJacket(c.jacket||c.shirt));
-  if(l.includes('model')||l.includes('figure')||l.includes('outfit'))return Promise.resolve(svgFigure(c.shirt,c.pant,c.shoe,c.jacket,c.skin));
-  return Promise.resolve(svgShirt(c.shirt));
+// Generate image with flux/schnell
+async function genImg(prompt){
+  const key=gFalKey();if(!key)return null;
+  try{
+    const res=await fetch('https://fal.run/fal-ai/flux/schnell',{
+      method:'POST',
+      headers:{'Authorization':'Key '+key,'Content-Type':'application/json'},
+      body:JSON.stringify({prompt,image_size:'portrait_4_3',num_inference_steps:4,num_images:1})
+    });
+    const d=await res.json();
+    return d?.images?.[0]?.url||null;
+  }catch(e){return null;}
 }
 
 // Upload base64 image to fal.ai storage and get URL
@@ -1045,19 +1038,37 @@ function renderA(r){
 
   // ── Colour rating blocks ────────────────────────────────
   const ratingColor={'BEST':'#1A7A4A','GOOD':'#B8965A','LESS FLATTERING':'#888'};
-  const bSw=(cp.best_colors||[]).map((c,ci)=>`
-    <div id="ccard-${ci}" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow)">
-      <div id="cimg-${ci}" style="height:100px;background:${c.hex};position:relative;display:flex;align-items:flex-end;padding:6px">
-        <span style="background:rgba(0,0,0,.5);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;text-transform:uppercase;letter-spacing:.06em">${c.rating||'BEST'}</span>
+  const ratingBg={'BEST':'#052e16','GOOD':'#2A1800','LESS FLATTERING':'#1a1a1a'};
+  const ratingBdr={'BEST':'#22C55E','GOOD':'#C9A96E','LESS FLATTERING':'#555'};
+
+  function makeColorBlock(hex, rating, name, clothing, id){
+    const rc=ratingColor[rating]||'#888';
+    const rb=ratingBg[rating]||'#1a1a1a';
+    const rd=ratingBdr[rating]||'#555';
+    // Determine if color is light (needs dark text) or dark (needs light text)
+    let r2=0,g2=0,b2=0;
+    try{r2=parseInt(hex.slice(1,3),16);g2=parseInt(hex.slice(3,5),16);b2=parseInt(hex.slice(5,7),16);}catch(e){}
+    const lum=(r2*299+g2*587+b2*114)/1000;
+    const txtC=lum>140?'rgba(0,0,0,0.85)':'rgba(255,255,255,0.95)';
+    return `<div id="${id}" style="border-radius:14px;overflow:hidden;border:1.5px solid ${rd};background:var(--surface);box-shadow:var(--shadow)">
+      <!-- Big color swatch — the whole top is the color -->
+      <div style="height:88px;background:${hex};position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+        <!-- Rating badge -->
+        <div style="position:absolute;top:7px;left:7px;background:${rb};border:1px solid ${rd};color:${rc};font-size:8.5px;font-weight:800;padding:2px 8px;border-radius:100px;text-transform:uppercase;letter-spacing:.07em">${rating}</div>
+        <!-- Subtle hex label -->
+        <div style="position:absolute;bottom:5px;right:8px;font-size:9px;color:${txtC};opacity:.65;font-family:monospace">${hex}</div>
       </div>
+      <!-- Info below -->
       <div style="padding:8px 10px">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-          <div style="width:14px;height:14px;border-radius:50%;background:${c.hex};flex-shrink:0;border:1px solid var(--border)"></div>
-          <div style="font-size:12px;font-weight:600;color:var(--char)">${c.name}</div>
-        </div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.4">${c.clothing||''}</div>
+        <div style="font-size:12px;font-weight:700;color:var(--char);margin-bottom:3px">${name}</div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.4">${clothing||''}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }
+
+  const bSw=(cp.best_colors||[]).map((c,ci)=>
+    makeColorBlock(c.hex||'#888', c.rating||'BEST', c.name||'', c.clothing||'', `ccard-${ci}`)
+  ).join('');
 
   const neutralSw=(cp.neutrals||[]).map(c=>`
     <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:10px;flex:1;min-width:80px">
@@ -1085,20 +1096,92 @@ function renderA(r){
       </div>`:''}
     </div>`;
 
-  // ── Hairstyle cards ─────────────────────────────────────
+  // ── Hairstyle cards — illustrated SVG silhouettes ──────────
+  function hairSVG(name, skinHex){
+    const nl=(name||'').toLowerCase();
+    const sk=skinHex||'#C8906A', hc='#1A0A00';
+    // Face base shared
+    const face=`<ellipse cx="50" cy="56" rx="24" ry="28" fill="${sk}"/>
+      <ellipse cx="26" cy="58" rx="6" ry="9" fill="${sk}"/>
+      <ellipse cx="74" cy="58" rx="6" ry="9" fill="${sk}"/>
+      <rect x="40" y="82" width="20" height="14" rx="5" fill="${sk}"/>
+      <ellipse cx="41" cy="51" rx="5" ry="4" fill="white"/>
+      <ellipse cx="59" cy="51" rx="5" ry="4" fill="white"/>
+      <circle cx="42" cy="51" r="3" fill="#1a0800"/>
+      <circle cx="60" cy="51" r="3" fill="#1a0800"/>
+      <path d="M43 64 Q50 68 57 64" stroke="rgba(0,0,0,.2)" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+
+    if(nl.includes('fade')||nl.includes('taper')||nl.includes('undercut')||nl.includes('buzz')||nl.includes('crop')){
+      return `<svg viewBox="0 0 100 110" style="width:100%;height:100%">
+        <rect width="100" height="110" fill="#1a1a2e"/>
+        ${face}
+        <path d="M26 40 Q28 20 50 16 Q72 20 74 40 Q64 28 50 26 Q36 28 26 40Z" fill="${hc}"/>
+        <rect x="26" y="35" width="48" height="9" rx="0" fill="${hc}"/>
+      </svg>`;
+    } else if(nl.includes('curly')||nl.includes('afro')||nl.includes('coil')){
+      return `<svg viewBox="0 0 100 110" style="width:100%;height:100%">
+        <rect width="100" height="110" fill="#1a1a2e"/>
+        ${face}
+        <circle cx="50" cy="22" r="22" fill="${hc}"/>
+        <circle cx="28" cy="34" r="12" fill="${hc}"/>
+        <circle cx="72" cy="34" r="12" fill="${hc}"/>
+        <circle cx="36" cy="20" r="10" fill="${hc}"/>
+        <circle cx="64" cy="20" r="10" fill="${hc}"/>
+      </svg>`;
+    } else if(nl.includes('pompadour')||nl.includes('quiff')||nl.includes('slick')){
+      return `<svg viewBox="0 0 100 110" style="width:100%;height:100%">
+        <rect width="100" height="110" fill="#1a1a2e"/>
+        ${face}
+        <path d="M26 42 Q28 18 50 14 Q72 18 74 42 Q60 30 50 26 Q40 30 26 42Z" fill="${hc}"/>
+        <path d="M36 22 Q50 10 64 22 Q56 16 50 15 Q44 16 36 22Z" fill="${hc}"/>
+      </svg>`;
+    } else if(nl.includes('wave')||nl.includes('textured')||nl.includes('flow')||nl.includes('medium')){
+      return `<svg viewBox="0 0 100 110" style="width:100%;height:100%">
+        <rect width="100" height="110" fill="#1a1a2e"/>
+        ${face}
+        <path d="M26 44 Q28 16 50 12 Q72 16 74 44 Q62 28 50 24 Q38 28 26 44Z" fill="${hc}"/>
+        <path d="M26 42 Q35 36 44 40 Q52 36 60 40 Q68 36 74 40" stroke="${hc}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      </svg>`;
+    } else if(nl.includes('long')||nl.includes('bun')||nl.includes('man bun')){
+      return `<svg viewBox="0 0 100 110" style="width:100%;height:100%">
+        <rect width="100" height="110" fill="#1a1a2e"/>
+        ${face}
+        <path d="M26 44 Q28 14 50 10 Q72 14 74 44 Q62 24 50 20 Q38 24 26 44Z" fill="${hc}"/>
+        <line x1="26" y1="44" x2="22" y2="70" stroke="${hc}" stroke-width="5" stroke-linecap="round"/>
+        <line x1="74" y1="44" x2="78" y2="70" stroke="${hc}" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="50" cy="12" rx="8" ry="7" fill="${hc}"/>
+      </svg>`;
+    } else if(nl.includes('layer')||nl.includes('shag')){
+      return `<svg viewBox="0 0 100 110" style="width:100%;height:100%">
+        <rect width="100" height="110" fill="#1a1a2e"/>
+        ${face}
+        <path d="M26 44 Q28 16 50 12 Q72 16 74 44 Q62 26 50 22 Q38 26 26 44Z" fill="${hc}"/>
+        <path d="M22 50 Q28 46 26 56" stroke="${hc}" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M78 50 Q72 46 74 56" stroke="${hc}" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </svg>`;
+    } else {
+      // Default: clean short cut
+      return `<svg viewBox="0 0 100 110" style="width:100%;height:100%">
+        <rect width="100" height="110" fill="#1a1a2e"/>
+        ${face}
+        <path d="M26 42 Q28 18 50 14 Q72 18 74 42 Q64 28 50 24 Q36 28 26 42Z" fill="${hc}"/>
+      </svg>`;
+    }
+  }
+
   const hCards=(r.hairstyle?.top_3||[]).map((s,i)=>{
     const name=typeof s==='object'?s.name:(s.split(':')[0]);
     const desc=typeof s==='object'?s.description:(s.split(':').slice(1).join(':').trim());
     const why=typeof s==='object'?s.why_suits:'';
-    return `<div id="hcard-${i}" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow)">
-      <div id="himg-${i}" style="height:120px;background:var(--surface2);display:flex;align-items:center;justify-content:center;position:relative">
-        <div style="font-size:2rem">💈</div>
-        ${i===0?'<div style="position:absolute;top:6px;left:6px;background:var(--gold);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px">BEST</div>':''}
+    return `<div id="hcard-${i}" style="border-radius:14px;overflow:hidden;border:1.5px solid ${i===0?'var(--gold)':'var(--border)'};background:var(--surface);box-shadow:var(--shadow)">
+      <div id="himg-${i}" style="height:120px;background:#1a1a2e;display:flex;align-items:stretch;position:relative;overflow:hidden">
+        ${hairSVG(name, skinHex)}
+        ${i===0?'<div style="position:absolute;top:7px;left:7px;background:var(--gold);color:#000;font-size:8.5px;font-weight:800;padding:2px 8px;border-radius:100px;letter-spacing:.04em">BEST</div>':''}
       </div>
       <div style="padding:10px 12px">
-        <div style="font-size:13px;font-weight:600;color:var(--char);margin-bottom:3px">${name}</div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:4px">${desc}</div>
-        ${why?`<div style="font-size:11px;color:var(--gold);font-style:italic">${why}</div>`:''}
+        <div style="font-size:12.5px;font-weight:700;color:var(--char);margin-bottom:3px">${name}</div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.4;margin-bottom:4px">${desc}</div>
+        ${why?`<div style="font-size:10.5px;color:var(--gold);font-style:italic;line-height:1.4">${why}</div>`:''}
       </div>
     </div>`;}).join('');
 
@@ -1252,58 +1335,70 @@ function renderA(r){
     </svg>`;
   }
 
-  function _gpi(t,k){const p=t.split(/,(?![^()]*\))/);for(const x of p){if(k.some(w=>x.toLowerCase().includes(w)))return x.trim();}return null;}
+  function _gItem(text,keys){
+    const parts=text.split(/,(?![^()]*\))/);
+    for(const p of parts){if(keys.some(k=>p.toLowerCase().includes(k)))return p.trim();}
+    return null;
+  }
+
   const outfitCards=(r.outfit_ideas||[]).map((o,idx)=>{
     const{hasJacket,jacketC,shirtC,pantC,shoeC}=parseOutfit(o.outfit);
-    const sD=_gpi(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley','button'])||o.outfit.split(',')[0]||'Shirt';
-    const pD=_gpi(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt','denim'])||o.outfit.split(',')[1]||'Trousers';
-    const shD=_gpi(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer'])||o.outfit.split(',')[2]||'Shoes';
-    const jD=_gpi(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']);
-    const fig=svgFigure(shirtC,pantC,shoeC,hasJacket?jacketC:null,skinHex);
-    const sS=svgShirt(shirtC); const pS=svgPants(pantC); const shS=svgShoes(shoeC);
-    const jS=hasJacket&&jD?svgJacket(jacketC):null;
-    return `<div style="border:1.5px solid ${idx===0?'var(--gold)':'var(--border)'};border-radius:20px;margin-bottom:20px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow-lg)">
-      <div style="background:${idx===0?'#1C1C1C':'var(--surface2)'};padding:13px 18px;display:flex;align-items:center;justify-content:space-between">
+    const sDesc=_gItem(o.outfit,['shirt','t-shirt','tee','polo','sweater','blouse','top','linen','knitwear','crew','henley','button','kurta'])||o.outfit.split(',')[0]||'Shirt';
+    const pDesc=_gItem(o.outfit,['trouser','pant','jean','chino','jogger','slack','short','skirt','denim'])||o.outfit.split(',')[1]||'Trousers';
+    const shDesc=_gItem(o.outfit,['shoe','loafer','sneaker','boot','heel','oxford','sandal','trainer'])||o.outfit.split(',')[2]||'Shoes';
+    const jDesc=_gItem(o.outfit,['jacket','blazer','coat','cardigan','hoodie','zip']);
+
+    // Build color items array
+    const items=[
+      {label:'SHIRT',color:shirtC,desc:sDesc,icon:'👕'},
+      {label:'PANT',color:pantC,desc:pDesc,icon:'👖'},
+      {label:'SHOES',color:shoeC,desc:shDesc,icon:'👟'},
+      ...(hasJacket&&jDesc?[{label:'JACKET',color:jacketC,desc:jDesc,icon:'🧥'}]:[])
+    ];
+
+    return `<div style="border:1.5px solid ${idx===0?'var(--gold)':'var(--border)'};border-radius:20px;margin-bottom:18px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow-lg)">
+
+      <!-- HEADER -->
+      <div style="background:${idx===0?'#1C1C1C':'var(--surface2)'};padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:${idx===0?'var(--gold)':'var(--muted)'}">${o.occasion}</div>
         ${idx===0?'<div style="font-size:11px;font-weight:600;color:var(--gold)">&#9733; Best match</div>':''}
       </div>
-      <div style="display:grid;grid-template-columns:46% 54%;border-bottom:1px solid var(--border)">
-        <div style="min-height:320px;overflow:hidden;border-right:1px solid var(--border);background:#0d0c1a">
-          <img src="${fig}" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block" alt="outfit">
-        </div>
-        <div style="display:flex;flex-direction:column">
-          <div style="display:flex;min-height:80px;border-bottom:1px solid var(--border)">
-            <div style="width:42%;border-right:1px solid var(--border);overflow:hidden;background:#F5F2ED;flex-shrink:0;padding:3px"><img src="${sS}" style="width:100%;height:100%;object-fit:contain;display:block"></div>
-            <div style="flex:1;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px">
-              <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#111;border-bottom:2px solid ${shirtC};padding-bottom:2px;width:fit-content">SHIRT</div>
-              <div style="font-size:10px;color:var(--char);line-height:1.4">${sD}</div>
-              <div style="width:12px;height:12px;border-radius:3px;background:${shirtC};border:1px solid rgba(0,0,0,.1);margin-top:1px"></div>
-            </div>
-          </div>
-          <div style="display:flex;min-height:80px;border-bottom:1px solid var(--border)">
-            <div style="width:42%;border-right:1px solid var(--border);overflow:hidden;background:#F5F2ED;flex-shrink:0;padding:3px"><img src="${pS}" style="width:100%;height:100%;object-fit:contain;display:block"></div>
-            <div style="flex:1;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px">
-              <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#111;border-bottom:2px solid ${pantC};padding-bottom:2px;width:fit-content">PANT</div>
-              <div style="font-size:10px;color:var(--char);line-height:1.4">${pD}</div>
-              <div style="width:12px;height:12px;border-radius:3px;background:${pantC};border:1px solid rgba(0,0,0,.1);margin-top:1px"></div>
-            </div>
-          </div>
-          <div style="display:flex;min-height:80px;${hasJacket&&jD?'border-bottom:1px solid var(--border);':''}">
-            <div style="width:42%;border-right:1px solid var(--border);overflow:hidden;background:#F5F2ED;flex-shrink:0;padding:3px"><img src="${shS}" style="width:100%;height:100%;object-fit:contain;display:block"></div>
-            <div style="flex:1;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px">
-              <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#111;border-bottom:2px solid ${shoeC};padding-bottom:2px;width:fit-content">SHOES</div>
-              <div style="font-size:10px;color:var(--char);line-height:1.4">${shD}</div>
-              <div style="width:12px;height:12px;border-radius:3px;background:${shoeC};border:1px solid rgba(0,0,0,.1);margin-top:1px"></div>
-            </div>
-          </div>
-          ${hasJacket&&jD&&jS?`<div style="display:flex;min-height:80px"><div style="width:42%;border-right:1px solid var(--border);overflow:hidden;background:#F5F2ED;flex-shrink:0;padding:3px"><img src="${jS}" style="width:100%;height:100%;object-fit:contain;display:block"></div><div style="flex:1;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px"><div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:#111;border-bottom:2px solid ${jacketC};padding-bottom:2px;width:fit-content">JACKET</div><div style="font-size:10px;color:var(--char);line-height:1.4">${jD} <span style="color:var(--muted);font-size:9px">(optional)</span></div><div style="width:12px;height:12px;border-radius:3px;background:${jacketC};border:1px solid rgba(0,0,0,.1);margin-top:1px"></div></div></div>`:''}
-        </div>
+
+      <!-- COLOR PALETTE STRIP — all outfit colors in one row -->
+      <div style="display:flex;height:56px;overflow:hidden">
+        ${items.map((it,ii)=>`<div style="flex:1;background:${it.color};position:relative;display:flex;align-items:flex-end;padding:4px 5px;${ii>0?'border-left:1px solid rgba(255,255,255,.1)':''}">
+          <span style="font-size:7.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.8)">${it.label}</span>
+        </div>`).join('')}
       </div>
-      <div style="padding:14px 16px">
-        <div style="text-align:center;margin-bottom:8px"><div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--char)">THE LOOK</div><div style="width:28px;height:2px;background:var(--gold);margin:4px auto 0"></div></div>
+      <!-- Hex codes row -->
+      <div style="display:flex;border-bottom:1px solid var(--border)">
+        ${items.map(it=>`<div style="flex:1;padding:3px 5px;text-align:center"><span style="font-size:8.5px;color:var(--muted);font-family:monospace">${it.color}</span></div>`).join('')}
+      </div>
+
+      <!-- ITEM ROWS — each with color swatch + description -->
+      <div style="padding:4px 0">
+        ${items.map(it=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border)">
+          <!-- Color swatch pill -->
+          <div style="width:38px;height:38px;border-radius:10px;background:${it.color};flex-shrink:0;border:1px solid rgba(255,255,255,.08);box-shadow:0 2px 6px rgba(0,0,0,.3)"></div>
+          <!-- Label + description -->
+          <div style="flex:1;min-width:0">
+            <div style="font-size:9px;font-weight:800;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:2px">${it.icon} ${it.label}</div>
+            <div style="font-size:12px;color:var(--char);line-height:1.4;font-weight:500">${it.desc}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+
+      <!-- THE LOOK -->
+      <div style="padding:14px 16px;background:var(--surface)">
+        <div style="text-align:center;margin-bottom:8px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--char)">THE LOOK</div>
+          <div style="width:28px;height:2px;background:var(--gold);margin:4px auto 0"></div>
+        </div>
         <div style="font-size:12.5px;font-weight:500;line-height:1.7;color:var(--char);text-align:center;margin-bottom:6px">${o.outfit}</div>
         <div style="font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center">${o.why}</div>
       </div>
+
     </div>`;}).join('');
 
   // ── Shirt types ─────────────────────────────────────────
@@ -1373,53 +1468,33 @@ function renderA(r){
     </div>
 
     <!-- 4b. RATE MY OUTFIT TODAY -->
-    <div class="rc" id="rmo-card">
-      <div class="ch">
-        <div class="ci">📸</div>
-        <div class="ct">How Does My Outfit Look Today?</div>
-      </div>
+    <div class="rc">
+      <div class="ch"><div class="ci">📸</div><div class="ct">How Does My Outfit Look Today?</div></div>
       <div class="cb">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">Upload or take a photo of today's outfit — GroomAI will rate it 1–10 and suggest improvements.</div>
-        <div id="rmo-upload-area" style="border:2px dashed var(--border);border-radius:16px;padding:24px 16px;text-align:center;cursor:pointer;background:var(--surface2);position:relative;transition:all .2s" onclick="document.getElementById('rmo-file').click()" ondragover="this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor='var(--border)'">
-          <input type="file" id="rmo-file" accept="image/*" style="display:none" onchange="rmoLoad(this)">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">Upload today's outfit photo — GroomAI rates it 1–10 and tells you exactly what to change.</div>
+        <div style="border:2px dashed var(--border);border-radius:16px;padding:20px;text-align:center;cursor:pointer;background:var(--surface2);position:relative" onclick="document.getElementById('rmo-file').click()">
+          <input type="file" id="rmo-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="rmoLoad(this)">
           <div style="font-size:2rem;margin-bottom:6px">📷</div>
-          <div style="font-size:13px;font-weight:600;color:var(--char);margin-bottom:3px">Upload outfit photo</div>
-          <div style="font-size:11px;color:var(--muted)">or tap camera below</div>
+          <div style="font-size:13px;font-weight:600;color:var(--char);margin-bottom:2px">Upload outfit photo</div>
+          <div style="font-size:11px;color:var(--muted)">or use camera below</div>
         </div>
-        <button onclick="rmoCamera()" style="width:100%;margin-top:10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:.6rem;font-size:13px;color:var(--char);font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-          📸 Take photo with camera
-        </button>
-        <!-- Preview + questions -->
+        <button onclick="document.getElementById('rmo-file').setAttribute('capture','environment');document.getElementById('rmo-file').click()" style="width:100%;margin-top:8px;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:.55rem;font-size:13px;color:var(--char);font-family:inherit;cursor:pointer">📸 Take photo with camera</button>
         <div id="rmo-preview-wrap" style="display:none;margin-top:14px">
-          <img id="rmo-preview" style="width:100%;max-height:280px;object-fit:cover;border-radius:14px;margin-bottom:14px" alt="outfit preview">
-          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px">Before rating, tell us:</div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
-            <select id="rmo-occasion" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.55rem .75rem;font-size:13px;color:var(--char);font-family:inherit;outline:none;cursor:pointer">
-              <option value="">🎯 What's the occasion?</option>
-              <option value="casual day out">Casual day out</option>
-              <option value="office/work">Office / Work</option>
-              <option value="job interview">Job interview</option>
-              <option value="date night">Date night</option>
-              <option value="wedding/formal event">Wedding / Formal event</option>
-              <option value="gym/sports">Gym / Sports</option>
-              <option value="party/night out">Party / Night out</option>
-              <option value="travel">Travel</option>
-              <option value="everyday errand">Everyday errand</option>
-            </select>
-            <select id="rmo-feel" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.55rem .75rem;font-size:13px;color:var(--char);font-family:inherit;outline:none;cursor:pointer">
-              <option value="">💭 How do you feel about this outfit?</option>
-              <option value="confident and love it">Confident and love it</option>
-              <option value="unsure, need feedback">Unsure, need feedback</option>
-              <option value="it feels off but can't say why">Something feels off</option>
-              <option value="comfortable but boring">Comfortable but boring</option>
-            </select>
-            <input id="rmo-accessories" placeholder="⌚ Any accessories? (watch, glasses, chain...)" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.55rem .75rem;font-size:13px;color:var(--char);font-family:inherit;outline:none" autocomplete="off">
-          </div>
-          <button onclick="rmoRate()" id="rmo-btn" style="width:100%;background:var(--gold);border:none;border-radius:14px;padding:.8rem;font-size:15px;font-weight:700;color:#000;font-family:inherit;cursor:pointer;letter-spacing:.01em">
-            ✨ Rate My Outfit
-          </button>
+          <img id="rmo-preview" style="width:100%;max-height:260px;object-fit:cover;border-radius:14px;margin-bottom:12px" alt="">
+          <select id="rmo-occasion" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;font-size:13px;color:var(--char);font-family:inherit;outline:none;margin-bottom:8px">
+            <option value="">🎯 What is the occasion?</option>
+            <option>Casual day out</option><option>Office / Work</option><option>Job interview</option>
+            <option>Date night</option><option>Wedding / Formal event</option><option>Gym / Sports</option>
+            <option>Party / Night out</option><option>Travel</option><option>Everyday errand</option>
+          </select>
+          <select id="rmo-feel" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;font-size:13px;color:var(--char);font-family:inherit;outline:none;margin-bottom:8px">
+            <option value="">💭 How do you feel about this outfit?</option>
+            <option>Confident and love it</option><option>Unsure, need feedback</option>
+            <option>Something feels off</option><option>Comfortable but boring</option>
+          </select>
+          <input id="rmo-acc" placeholder="⌚ Accessories? (watch, glasses, chain...)" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;font-size:13px;color:var(--char);font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:12px" autocomplete="off">
+          <button onclick="rmoRate()" id="rmo-btn" style="width:100%;background:var(--gold);border:none;border-radius:14px;padding:.8rem;font-size:15px;font-weight:700;color:#000;font-family:inherit;cursor:pointer">✨ Rate My Outfit</button>
         </div>
-        <!-- Rating result -->
         <div id="rmo-result" style="display:none;margin-top:16px"></div>
       </div>
     </div>
@@ -1475,11 +1550,11 @@ function renderA(r){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           <div style="background:#FFFBEB;border-radius:12px;padding:12px 14px;border:1px solid #FDE68A">
             <div style="font-size:11px;font-weight:700;color:#92400E;margin-bottom:6px">☀️ Morning</div>
-            <div style="font-size:12.5px;line-height:1.7;color:#111111">${sk.routine_am||''}</div>
+            <div style="font-size:12.5px;line-height:1.7;color:#111">${sk.routine_am||''}</div>
           </div>
           <div style="background:#EFF6FF;border-radius:12px;padding:12px 14px;border:1px solid #BFDBFE">
             <div style="font-size:11px;font-weight:700;color:#1E40AF;margin-bottom:6px">🌙 Evening</div>
-            <div style="font-size:12.5px;line-height:1.7;color:#111111">${sk.routine_pm||''}</div>
+            <div style="font-size:12.5px;line-height:1.7;color:#111">${sk.routine_pm||''}</div>
           </div>
         </div>
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px">Key Ingredients</div>
@@ -1512,7 +1587,7 @@ function renderA(r){
 
   </div>`;
 
-  // ── SVG illustrations render inline — no async needed ─────
+  // ── Outfit cards render inline — no async needed ───────
 
   // ── Original fal.ai async section ──────────────────────
   if(gFalKey()){
@@ -2100,7 +2175,7 @@ function snapPhoto(){
   closeCam();
   updOb();
 }
-// ── RATE MY OUTFIT TODAY ──────────────────────────────
+// ── RATE MY OUTFIT ────────────────────────────────────
 let rmoPhoto=null;
 function rmoLoad(input){
   const file=input.files[0];if(!file)return;
@@ -2112,40 +2187,22 @@ function rmoLoad(input){
   };
   reader.readAsDataURL(file);
 }
-function rmoCamera(){
-  // Reuse camera flow but target rmo
-  if(!navigator.mediaDevices){alert('Camera unavailable — please upload a photo.');return;}
-  const inp=document.getElementById('rmo-file');
-  inp.setAttribute('capture','environment');
-  inp.click();
-}
 async function rmoRate(){
-  const occasion=document.getElementById('rmo-occasion').value;
+  const occ=document.getElementById('rmo-occasion').value;
   const feel=document.getElementById('rmo-feel').value;
-  const acc=document.getElementById('rmo-accessories').value.trim();
+  const acc=document.getElementById('rmo-acc').value.trim();
   if(!rmoPhoto){alert('Please upload your outfit photo first.');return;}
-  if(!occasion){alert('Please select the occasion for this outfit.');return;}
+  if(!occ){alert('Please select the occasion.');return;}
   const btn=document.getElementById('rmo-btn');
-  btn.disabled=true;btn.textContent='Rating your outfit...';
-  const resEl=document.getElementById('rmo-result');
-  resEl.style.display='none';
-  const prompt=`You are a professional personal stylist and fashion consultant. Analyze this outfit photo and provide a detailed style rating.
+  btn.disabled=true;btn.textContent='Analysing outfit...';
+  const prompt=`You are an expert personal stylist. Rate this outfit photo.
+Occasion: ${occ}
+Feeling: ${feel||'not specified'}
+Accessories worn: ${acc||'none'}
+User: ${P.country}, age ${P.age}, ${P.styleId} style
 
-Context:
-- Occasion: ${occasion}
-- Person feels: ${feel||'not specified'}
-- Accessories worn: ${acc||'none mentioned'}
-- User profile: ${P.country}, age ${P.age}, ${P.styleId} style
-
-Your task:
-1. Rate this outfit out of 10 for the stated occasion (10 = perfect, 1 = needs major work)
-2. Explain what works well
-3. Explain what could be improved
-4. Suggest specific accessories to add or remove for a better look
-5. Suggest one alternative outfit that would score higher for this occasion
-
-Respond ONLY with valid JSON (no markdown):
-{"score":8,"score_label":"Great","summary":"2 sentence overall impression","what_works":["point 1","point 2","point 3"],"improvements":["specific improvement 1","specific improvement 2"],"accessories":{"add":["accessory to add with why"],"remove":["accessory to remove with why"],"keep":["what to keep"]},"better_outfit":"One complete outfit that would score higher for ${occasion}","verdict":"One punchy sentence verdict"}`;
+Return ONLY valid JSON:
+{"score":7,"score_label":"Good","verdict":"One punchy sentence","what_works":["point 1","point 2"],"improvements":["improvement 1","improvement 2"],"accessories":{"add":["item + reason"],"remove":["item + reason"],"keep":["item"]},"better_outfit":"Complete outfit that scores higher for ${occ}"}`;
   try{
     const raw=await callG({contents:[{role:'user',content:[{type:'image',data:rmoPhoto},{type:'text',text:prompt}]}]});
     const j=xJSON(raw);
@@ -2153,42 +2210,31 @@ Respond ONLY with valid JSON (no markdown):
     const col=sc>=8?'#22C55E':sc>=6?'#C9A96E':'#EF4444';
     const bg=sc>=8?'var(--green-l)':sc>=6?'var(--gold-l)':'var(--red-l)';
     const brd=sc>=8?'var(--green)':sc>=6?'var(--gold)':'var(--red)';
-    resEl.innerHTML=`
-    <div style="border:2px solid ${brd};border-radius:20px;overflow:hidden;background:var(--surface)">
-      <!-- Score banner -->
+    document.getElementById('rmo-result').innerHTML=`
+    <div style="border:2px solid ${brd};border-radius:20px;overflow:hidden">
       <div style="background:${bg};padding:20px;text-align:center;border-bottom:1px solid ${brd}">
-        <div style="font-size:3.5rem;font-weight:700;color:${col};line-height:1;font-family:'Playfair Display',serif">${sc}<span style="font-size:1.2rem;color:var(--muted)">/10</span></div>
-        <div style="font-size:1rem;font-weight:700;color:${col};margin-top:4px;letter-spacing:.05em">${j.score_label||'Good'}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:6px">for ${occasion}</div>
+        <div style="font-size:3.5rem;font-weight:700;color:${col};line-height:1;font-family:'Playfair Display',serif">${sc}<span style="font-size:1.1rem;color:var(--muted)">/10</span></div>
+        <div style="font-size:.95rem;font-weight:700;color:${col};margin-top:4px">${j.score_label||''}</div>
+        <div style="height:8px;background:rgba(0,0,0,.15);border-radius:50px;margin:10px 0 0;overflow:hidden"><div style="height:100%;width:${sc*10}%;background:${col};border-radius:50px"></div></div>
       </div>
-      <!-- Score bar -->
-      <div style="padding:0 16px 0;background:${bg}">
-        <div style="height:8px;background:rgba(0,0,0,.15);border-radius:50px;margin-bottom:16px;overflow:hidden">
-          <div style="height:100%;width:${sc*10}%;background:${col};border-radius:50px;transition:width .8s ease"></div>
-        </div>
-      </div>
-      <div style="padding:14px 16px">
-        <!-- Summary -->
-        <div style="font-size:13.5px;line-height:1.7;color:var(--char);margin-bottom:14px;font-style:italic">"${j.verdict||j.summary||''}"</div>
-        <!-- What works -->
-        ${(j.what_works||[]).length?`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:6px">✓ What works</div>${(j.what_works||[]).map(w=>`<div style="font-size:12px;color:var(--char);padding:5px 10px;background:var(--green-l);border-radius:8px;margin-bottom:4px;line-height:1.4">${w}</div>`).join('')}</div>`:''}
-        <!-- Improvements -->
-        ${(j.improvements||[]).length?`<div style="margin-bottom:12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">↑ Could be better</div>${(j.improvements||[]).map(w=>`<div style="font-size:12px;color:var(--char);padding:5px 10px;background:var(--gold-l);border-radius:8px;margin-bottom:4px;line-height:1.4">${w}</div>`).join('')}</div>`:''}
-        <!-- Accessories -->
-        ${j.accessories?`<div style="margin-bottom:12px;background:var(--surface2);border-radius:12px;padding:10px 12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">⌚ Accessories</div>
-        ${(j.accessories.add||[]).length?`<div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:3px">+ Add</div>${(j.accessories.add||[]).map(a=>`<div style="font-size:11.5px;color:var(--char);margin-bottom:3px;padding-left:8px">• ${a}</div>`).join('')}`:''}
-        ${(j.accessories.remove||[]).length?`<div style="font-size:11px;font-weight:600;color:var(--red);margin-top:6px;margin-bottom:3px">✕ Remove</div>${(j.accessories.remove||[]).map(a=>`<div style="font-size:11.5px;color:var(--char);margin-bottom:3px;padding-left:8px">• ${a}</div>`).join('')}`:''}
-        ${(j.accessories.keep||[]).length?`<div style="font-size:11px;font-weight:600;color:var(--muted);margin-top:6px;margin-bottom:3px">✓ Keep</div>${(j.accessories.keep||[]).map(a=>`<div style="font-size:11.5px;color:var(--char);margin-bottom:3px;padding-left:8px">• ${a}</div>`).join('')}`:''}
+      <div style="padding:14px 16px;background:var(--surface)">
+        <div style="font-size:13.5px;color:var(--char);line-height:1.7;font-style:italic;margin-bottom:14px">"${j.verdict||''}"</div>
+        ${(j.what_works||[]).length?`<div style="margin-bottom:10px"><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:5px">✓ What works</div>${j.what_works.map(w=>`<div style="font-size:12px;color:var(--char);padding:5px 10px;background:var(--green-l);border-radius:8px;margin-bottom:4px">${w}</div>`).join('')}</div>`:''}
+        ${(j.improvements||[]).length?`<div style="margin-bottom:10px"><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:5px">↑ Improve</div>${j.improvements.map(w=>`<div style="font-size:12px;color:var(--char);padding:5px 10px;background:var(--gold-l);border-radius:8px;margin-bottom:4px">${w}</div>`).join('')}</div>`:''}
+        ${j.accessories?`<div style="background:var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:10px">
+          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">⌚ Accessories</div>
+          ${(j.accessories.add||[]).length?`<div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:3px">+ Add</div>${j.accessories.add.map(a=>`<div style="font-size:12px;color:var(--char);padding:3px 0 3px 8px">• ${a}</div>`).join('')}`:''}
+          ${(j.accessories.remove||[]).length?`<div style="font-size:10px;font-weight:700;color:var(--red);margin-top:6px;margin-bottom:3px">✕ Remove</div>${j.accessories.remove.map(a=>`<div style="font-size:12px;color:var(--char);padding:3px 0 3px 8px">• ${a}</div>`).join('')}`:''}
+          ${(j.accessories.keep||[]).length?`<div style="font-size:10px;font-weight:700;color:var(--muted);margin-top:6px;margin-bottom:3px">✓ Keep</div>${j.accessories.keep.map(a=>`<div style="font-size:12px;color:var(--char);padding:3px 0 3px 8px">• ${a}</div>`).join('')}`:''}
         </div>`:''}
-        <!-- Better outfit suggestion -->
-        ${j.better_outfit?`<div style="background:var(--gold-l);border:1px solid var(--gold);border-radius:12px;padding:10px 12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:5px">✨ For a higher score</div><div style="font-size:12.5px;color:var(--char);line-height:1.6">${j.better_outfit}</div></div>`:''}
+        ${j.better_outfit?`<div style="background:var(--gold-l);border:1px solid var(--gold);border-radius:12px;padding:10px 12px"><div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:5px">✨ For a higher score</div><div style="font-size:12.5px;color:var(--char);line-height:1.6">${j.better_outfit}</div></div>`:''}
       </div>
     </div>`;
-    resEl.style.display='block';
-    resEl.scrollIntoView({behavior:'smooth',block:'start'});
+    document.getElementById('rmo-result').style.display='block';
+    document.getElementById('rmo-result').scrollIntoView({behavior:'smooth'});
   }catch(e){
-    resEl.innerHTML=`<div style="padding:14px;background:var(--red-l);border-radius:14px;color:var(--red);font-size:13px">Error: ${e.message}</div>`;
-    resEl.style.display='block';
+    document.getElementById('rmo-result').innerHTML=`<div style="padding:12px;background:var(--red-l);border-radius:12px;color:var(--red);font-size:13px">Error: ${e.message}</div>`;
+    document.getElementById('rmo-result').style.display='block';
   }
   btn.disabled=false;btn.textContent='✨ Rate My Outfit';
 }
